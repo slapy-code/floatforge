@@ -62,7 +62,13 @@ def fetch(url):
             raw = brotli.decompress(raw)
         elif enc == 'gzip':
             raw = gzip.decompress(raw)
-    return json.loads(raw)
+        if raw[:2] == b'\x1f\x8b':  # gzip non signalé dans les en-têtes
+            raw = gzip.decompress(raw)
+        try:
+            return json.loads(raw)
+        except ValueError as e:
+            raise RuntimeError(f'réponse non JSON ({r.status}, {r.headers.get("Content-Type")}, '
+                               f'{r.headers.get("Content-Encoding")}) : {raw[:120]!r}') from e
 
 
 def keep(name):
