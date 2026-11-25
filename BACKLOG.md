@@ -1,0 +1,30 @@
+# BACKLOG — actions prévues
+
+_Révision : 2026-11-25_
+
+## Sommaire
+1. [Priorité haute](#priorité-haute)
+2. [Priorité moyenne](#priorité-moyenne)
+3. [Plus tard](#plus-tard)
+4. [Fait](#fait)
+
+## Priorité haute
+- [ ] Mise en ligne GitHub Pages : attendre le dépôt d'Alex, pousser le code, activer Pages (source : GitHub Actions), vérifier le premier passage de l'Action de prix.
+- [ ] Valider la définition des tags « 100 % gagnant » et « 100 % remboursé ».
+
+## Priorité moyenne
+- [ ] Générateur : 3 collections et plus, diversité des résultats (éviter 10 variantes du même « remplisseur »).
+- [ ] Prix au float exact (FN 0,00x plus cher) et phases Doppler.
+- [ ] Entrées Souvenir (autorisées depuis mai 2026, sortie jamais Souvenir).
+- [ ] Partage d'un contrat par lien et sauvegarde de plusieurs contrats favoris.
+- [ ] Simulation « et si » : curseur de float moyen et graphe prix de sortie en fonction du float.
+
+## Plus tard
+- [ ] Version anglaise.
+- [ ] Historique des prix sur le site (courbe), alertes de rentabilité.
+- [ ] Descriptions / lore des skins dans le wiki.
+
+## Fait
+- [x] Moteur de calcul + 15 tests (2026-11-25)
+- [x] Calculateur, générateur par tags, import de prix, corrections manuelles, page Méthode (2026-11-25)
+- [x] Wiki des skins et collections, icônes (site hébergé), prix auto Skinport + variations, GitHub Action horaire (2026-11-25)
