@@ -39,7 +39,7 @@ Alex veut un site qui fait ce que font TradeUpSpy et CSFloat (calculateur de tra
 ## Hypothèses à confirmer
 - Définition des tags « 100 % gagnant » (pire issue > coût) et « remboursé » (pire issue ≥ seuil % du coût, 90 % par défaut).
 - Devise : EUR supposé (non confirmé).
-- En attente : pseudo GitHub d'Alex et création du dépôt pour la mise en ligne.
+- Site en ligne : https://slapy-code.github.io/floatforge/ (dépôt public github.com/slapy-code/floatforge, Pages source = GitHub Actions), depuis le 2026-11-25.
 
 ## Conventions
 Documents tenus à jour : README.md (racine), CLAUDE.md, BACKLOG.md, SCHEMA.md, PIEGES.md. Titre, date de révision, sommaire. Les documents obsolètes vont dans ARCHIVES/. Langue : français.

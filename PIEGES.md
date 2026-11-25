@@ -27,6 +27,9 @@ _Révision : 2026-11-25_
 - Les floats sont des float32 dans le jeu : un résultat pile sur une limite (0,07, 0,15…) peut tomber d'un côté ou de l'autre. Garder une marge.
 - Une entrée dont la collection n'a pas de rareté supérieure est refusée par le jeu.
 
+- GitHub Pages gratuit exige un dépôt **public** : en privé, la rubrique « Source » n'apparaît pas. L'API Pages est bloquée par le proxy de Claude : c'est Alex qui active Pages dans les réglages.
+- L'API Skinport `sales/history` refuse le paramètre `tradable` (HTTP 400).
+
 ## Interface
 - `updatePriceBadge` plantait quand seuls les prix auto existaient (`prices.source` sur null) : toujours tester les 3 états (démo, auto, import).
 - L'API Skinport répond en Brotli (`Accept-Encoding: br` obligatoire) : `pip install brotli` dans l'Action.

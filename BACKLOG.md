@@ -9,7 +9,6 @@ _Révision : 2026-11-25_
 4. [Fait](#fait)
 
 ## Priorité haute
-- [ ] Mise en ligne GitHub Pages : attendre le dépôt d'Alex, pousser le code, activer Pages (source : GitHub Actions), vérifier le premier passage de l'Action de prix.
 - [ ] Valider la définition des tags « 100 % gagnant » et « 100 % remboursé ».
 
 ## Priorité moyenne
@@ -27,4 +26,5 @@ _Révision : 2026-11-25_
 ## Fait
 - [x] Moteur de calcul + 15 tests (2026-11-25)
 - [x] Calculateur, générateur par tags, import de prix, corrections manuelles, page Méthode (2026-11-25)
+- [x] Mise en ligne GitHub Pages + robot de prix horaire (36 298 prix Skinport au premier passage) (2026-11-25)
 - [x] Wiki des skins et collections, icônes (site hébergé), prix auto Skinport + variations, GitHub Action horaire (2026-11-25)
