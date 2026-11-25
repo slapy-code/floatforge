@@ -27,8 +27,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / 'site' / 'data' / 'prices.json'
 
 
-def get(path, currency):
-    url = f'{API}/{path}?app_id=730&currency={currency}&tradable=0'
+def get(path, currency, extra=''):
+    url = f'{API}/{path}?app_id=730&currency={currency}{extra}'
     req = urllib.request.Request(url, headers={'Accept-Encoding': 'br', 'User-Agent': 'FloatForge-price-updater'})
     with urllib.request.urlopen(req, timeout=120) as r:
         raw = r.read()
@@ -50,9 +50,13 @@ def r2(x):
 
 def main():
     cur = (sys.argv[1] if len(sys.argv) > 1 else 'EUR').upper()
-    items = get('items', cur)
+    items = get('items', cur, '&tradable=0')
     time.sleep(2)
-    hist = {h['market_hash_name']: h for h in get('sales/history', cur)}
+    try:  # l'historique est un bonus : en cas d'échec, on garde au moins les prix actuels
+        hist = {h['market_hash_name']: h for h in get('sales/history', cur)}
+    except Exception as e:  # noqa: BLE001
+        print('Historique des ventes indisponible :', e)
+        hist = {}
     out = {}
     for it in items:
         n = it['market_hash_name']
