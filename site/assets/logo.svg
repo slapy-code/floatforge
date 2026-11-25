@@ -1,9 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cb4ff"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
-    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6fe0"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient>
+    <linearGradient id="la" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
   </defs>
-  <path d="M3 17 L19 15 H57 Q61 15 61 19 V22 Q61 27 56 27 H45 L41 37 H49 Q52 37 52 40 V47 H12 V40 Q12 37 15 37 H23 L19 27 H17 Q8 27 3 17 Z" fill="url(#b)"/>
-  <path d="M3 17 L19 15 H57 Q61 15 61 19 V21 H19 Q9 21 3 17 Z" fill="url(#a)"/>
-  <rect x="12" y="44" width="40" height="3" rx="1.5" fill="#0f1d45" opacity=".55"/>
+  <rect width="64" height="64" rx="15" fill="url(#la)"/>
+  <g transform="skewX(-10) translate(5 0)">
+    <path d="M13 15 H31 V22 H21 V28 H29 V35 H21 V49 H13 Z" fill="#fff"/>
+    <path d="M34 15 H52 V22 H42 V28 H50 V35 H42 V49 H34 Z" fill="#fff" opacity=".72"/>
+  </g>
 </svg>

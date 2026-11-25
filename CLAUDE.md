@@ -36,7 +36,7 @@ Alex veut un site qui fait ce que font TradeUpSpy et CSFloat (calculateur de tra
 - Aperçu privé : https://claude.ai/artifact/7qrHQMs6dfzACDcwtWG13e.
 - Hébergement public choisi : **GitHub Pages** (dépôt public `floatforge` à créer par Alex), déploiement par la même Action que les prix.
 - Design v2 (2026-11-25, demande d'Alex « 100× plus pro, comme CSFloat / CS.MONEY / csgoskins.gg ») : navigation avec méga-menu des armes (icônes), recherche globale, calculateur en cases d'objets, synthèse collante, issues en cartes, fiche skin façon csgoskins.gg (usures à gauche, offres par marché à droite avec boutons « Voir l'offre »). Police Inter, bleu #3b82f6 sur bleu nuit.
-- Logo (révisé 2026-11-25, demande d'Alex « juste une enclume moderne stylisée ») : enclume seule, dégradés bleus, sans fond ; `site/assets/logo.svg`, aussi en favicon inline.
+- Logo (révisé 2026-11-25, demande d'Alex « juste un FF ») : monogramme « FF » blanc en italique sur carré bleu dégradé ; `site/assets/logo.svg`, aussi en favicon inline.
 - Barre du haut : tous les outils restent accessibles sur toutes les tailles d'écran (plus de menu burger ; sur mobile la navigation passe sur une 2e ligne).
 - Générateur : filtre par collections (recherche + cases) avec deux modes : « Uniquement celles-ci » (toutes les entrées des collections cochées) ou « Au moins une » (une collection cochée, mélangée avec n'importe quelle autre).
 - Icônes : restent sur le CDN Steam (le problème signalé venait de la connexion d'Alex, pas du site).

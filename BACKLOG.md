@@ -26,7 +26,7 @@ _Révision : 2026-11-25_
 - [ ] Descriptions / lore des skins dans le wiki.
 
 ## Fait
-- [x] Générateur : filtre par collections ; barre du haut sur tous écrans ; nouveau logo enclume (2026-11-25)
+- [x] Générateur : filtre par collections ; barre du haut sur tous écrans ; logo FF (2026-11-25)
 - [x] Moteur de calcul + 15 tests (2026-11-25)
 - [x] Calculateur, générateur par tags, import de prix, corrections manuelles, page Méthode (2026-11-25)
 - [x] Mise en ligne GitHub Pages + robot de prix horaire (36 298 prix Skinport au premier passage) (2026-11-25)
