@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f8ff7"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs>
-  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#g)"/>
-  <path d="M7 22.5 L18 20.5 H48 Q53 20.5 53 25 V26.5 Q53 30 49 30 H41 L38 37 H44 Q46.5 37 46.5 39.5 V42 H17.5 V39.5 Q17.5 37 20 37 H26 L23 30 H18 Q13 30 10.5 26.5 Z" fill="#fff"/>
-  <path d="M50 6 L51.6 10.4 L56 12 L51.6 13.6 L50 18 L48.4 13.6 L44 12 L48.4 10.4 Z" fill="#fcd34d"/>
-  <g transform="translate(13 48)"><rect width="7" height="5" rx="1.5" fill="#4ade80"/><rect x="8" width="7" height="5" rx="1.5" fill="#a3e635"/><rect x="16" width="7" height="5" rx="1.5" fill="#facc15"/><rect x="24" width="7" height="5" rx="1.5" fill="#fb923c"/><rect x="32" width="7" height="5" rx="1.5" fill="#f87171"/></g>
+  <defs>
+    <linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cb4ff"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6fe0"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient>
+  </defs>
+  <path d="M3 17 L19 15 H57 Q61 15 61 19 V22 Q61 27 56 27 H45 L41 37 H49 Q52 37 52 40 V47 H12 V40 Q12 37 15 37 H23 L19 27 H17 Q8 27 3 17 Z" fill="url(#b)"/>
+  <path d="M3 17 L19 15 H57 Q61 15 61 19 V21 H19 Q9 21 3 17 Z" fill="url(#a)"/>
+  <rect x="12" y="44" width="40" height="3" rx="1.5" fill="#0f1d45" opacity=".55"/>
 </svg>

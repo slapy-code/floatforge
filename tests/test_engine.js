@@ -70,5 +70,16 @@ const price = () => 1;
   ok(n > 1000, 'générateur : ' + n + ' contrats en ' + (Date.now() - t) + ' ms, meilleur ROI ' + (best.stats.roi * 100).toFixed(0) + ' %');
   ok(best.parts.reduce((a, p) => a + p.q, 0) === 10, 'générateur : 10 entrées');
 }
+// 9. Générateur filtré par collection
+{
+  const demo = (s, w) => 1 + ((s * 7 + w * 3) % 11);
+  const cols = data.collections.map((c, i) => i).filter(i => data.outs[i][3].length && data.outs[i][4].length).slice(0, 2);
+  let okAll = true, n = 0;
+  for (const { r } of FF.generate(data, { rar: 3, st: false, formula: 'new', fee: 0, priceOf: demo, pos: 0.5, maxCols: 2, only: cols, mode: 'all' })) { n++; if (!r.parts.every(p => cols.includes(p.k.c))) okAll = false; }
+  ok(n > 0 && okAll, 'filtre « toutes dans ces collections » (' + n + ' contrats)');
+  let okAny = true, m = 0;
+  for (const { r } of FF.generate(data, { rar: 3, st: false, formula: 'new', fee: 0, priceOf: demo, pos: 0.5, maxCols: 2, only: [cols[0]], mode: 'any' })) { m++; if (!r.parts.some(p => p.k.c === cols[0])) okAny = false; }
+  ok(m > 0 && okAny, 'filtre « au moins une collection » (' + m + ' contrats)');
+}
 console.log(fails ? fails + ' échec(s)' : 'Tous les tests passent');
 process.exit(fails ? 1 : 0);

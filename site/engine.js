@@ -159,7 +159,9 @@
   function candidates(data, rar, st, pos, priceOf, opts) {
     opts = opts || {};
     const res = new Map();
+    const only = opts.only && opts.only.length && opts.mode !== 'any' ? new Set(opts.only) : null;
     data.collections.forEach((col, c) => {
+      if (only && !only.has(c)) return;
       if (!outputsOf(data, c, rar, st).length) return;
       const list = [];
       data.skins.forEach((s, si) => {
@@ -206,15 +208,18 @@
       });
       return { parts, cost, avgNorm: sn / N, avgRaw: sr / N, outcomes: list, stats: stats(list, cost), cols: colCounts.size };
     };
+    // Mode « au moins une » : une des collections choisies doit figurer dans le contrat
+    const req = cfg.only && cfg.only.length && cfg.mode === 'any' ? new Set(cfg.only) : null;
     const total = all.length + (maxCols > 1 ? all.length * (all.length - 1) / 2 : 0);
     let done = 0;
-    for (const a of all) { yield { r: evalMix([{ k: a, q: N }]), done: ++done, total }; }
+    for (const a of all) { done++; if (req && !req.has(a.c)) continue; yield { r: evalMix([{ k: a, q: N }]), done, total }; }
     if (maxCols > 1) {
       for (let i = 0; i < all.length; i++) {
         for (let j = i + 1; j < all.length; j++) {
           const a = all[i], b = all[j];
           done++;
           if (a.c === b.c && a.s === b.s) continue;
+          if (req && !req.has(a.c) && !req.has(b.c)) continue;
           for (let q = 1; q < N; q++) yield { r: evalMix([{ k: a, q }, { k: b, q: N - q }]), done, total };
         }
       }
