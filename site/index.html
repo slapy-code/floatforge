@@ -1,340 +1,435 @@
 <meta charset="utf-8">
 <title>FloatForge</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="FloatForge : calculateur et générateur de contrats d'échange (trade up) CS2.">
+<meta name="description" content="FloatForge : calculateur de contrats d'échange CS2, générateur de trade ups rentables et wiki des skins avec prix multi-marchés.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Mise en page : atelier de nuit. Barre d'onglets en haut, poste de travail en deux colonnes (entrées | résultats), une seule colonne sur mobile. */
+/* Mise en page : place de marché nocturne. Barre de navigation fixe, contenu en grilles de cartes produits,
+   panneau de synthèse collant à droite sur le calculateur. */
 :root {
-  --bg: #0c1018;        /* encre bleu nuit */
-  --panel: #131a26;     /* établi */
-  --panel-2: #1a2333;   /* champ / survol */
-  --line: #253045;      /* séparateurs */
-  --fg: #e4e8f1;
-  --muted: #8b96ab;
-  --accent: #f0a83c;    /* braise de forge */
-  --accent-ink: #1a1206;
-  --good: #4fd18b;
-  --bad: #ff6b6b;
-  --warn: #f5c451;
-  --f-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
-  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-  --r: 6px;
+  --bg: #0d121b;
+  --bg-2: #121925;
+  --card: #18202e;
+  --card-2: #1f2939;
+  --card-3: #273246;
+  --line: #2a3548;
+  --fg: #eef2f8;
+  --fg-2: #c3cad8;
+  --muted: #8692a8;
+  --blue: #3b82f6;
+  --blue-2: #2f6fe0;
+  --blue-soft: rgb(59 130 246 / .14);
+  --good: #22c55e;
+  --bad: #ef4444;
+  --warn: #eab308;
+  --f-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --r: 8px;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--f-body); margin: 0; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
-a { color: var(--accent); }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--f-body); margin: 0; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg-2); }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
 button, input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.wrap { max-width: 1320px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
-@media (max-width: 700px) { header.top { position: static; } }
-header.top .wrap { display: flex; align-items: center; gap: 24px; padding-block: 12px; flex-wrap: wrap; }
-.brand { display: flex; align-items: baseline; gap: 10px; }
-.brand b { font: 700 22px/1 var(--f-display); letter-spacing: .04em; text-transform: uppercase; }
-.brand b span { color: var(--accent); }
-.brand small { color: var(--muted); font-size: 12px; }
-nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-nav.tabs button { background: none; border: 1px solid transparent; border-radius: var(--r); padding: 6px 12px; cursor: pointer; color: var(--muted); font: 600 14px var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
-nav.tabs button[aria-selected="true"] { color: var(--fg); border-color: var(--line); background: var(--panel); }
-nav.tabs button:hover { color: var(--fg); }
-.pricebadge { margin-left: auto; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); cursor: pointer; background: none; }
-.pricebadge.demo { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
-main { padding-block: 20px 60px; }
-.view[hidden] { display: none !important; }
-h1, h2, h3 { font-family: var(--f-display); font-weight: 600; letter-spacing: .02em; text-wrap: balance; margin: 0; }
-h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.grid2 { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px; align-items: start; }
-@media (max-width: 960px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
-.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.field > span { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-input[type="text"], input[type="number"], input[type="search"], select, textarea {
-  background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--r); padding: 7px 9px; min-width: 0; }
-input[type="number"] { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
-textarea { width: 100%; min-height: 90px; font-family: var(--f-mono); font-size: 12px; }
-.btn { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--r); padding: 7px 12px; cursor: pointer; font-weight: 500; }
-.btn:hover { border-color: var(--muted); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn.small { padding: 3px 8px; font-size: 13px; }
-.btn.ghost { background: none; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
-.seg button { background: var(--panel-2); border: 0; padding: 7px 10px; cursor: pointer; color: var(--muted); }
-.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
-.rar-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; flex: none; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.wrap { max-width: 1360px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
 .small { font-size: 12.5px; }
-.note { font-size: 13px; color: var(--muted); }
-.banner { border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); background: color-mix(in srgb, var(--warn) 9%, var(--panel)); color: var(--fg); padding: 10px 14px; border-radius: 8px; font-size: 13.5px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.pos { color: var(--good); } .neg { color: var(--bad); }
+h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h1 { font-size: 26px; font-weight: 700; }
+h2 { font-size: 16px; font-weight: 600; }
+.eyebrow { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+
+/* ---------- En-tête ---------- */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg-2); border-bottom: 1px solid var(--line); }
+.topbar { display: flex; align-items: center; gap: 18px; height: 60px; }
+.logo { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 19px; letter-spacing: -.02em; color: var(--fg); cursor: pointer; background: none; border: 0; padding: 0; white-space: nowrap; }
+.logo svg { width: 26px; height: 26px; }
+.logo span { color: var(--blue); }
+nav.main { display: flex; gap: 2px; align-items: center; }
+nav.main > button, nav.main .dd > button { background: none; border: 0; color: var(--fg-2); font-weight: 500; font-size: 14px; padding: 8px 11px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+nav.main > button:hover, nav.main .dd > button:hover { color: var(--fg); background: var(--card); }
+nav.main button[aria-current="page"] { color: var(--fg); background: var(--card-2); }
+.caret { width: 10px; height: 10px; opacity: .7; }
+.dd { position: relative; }
+.mega { position: absolute; top: calc(100% + 8px); left: -120px; width: min(860px, 92vw); background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 24px 60px rgb(0 0 0 / .55); padding: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 20px; z-index: 40; }
+.mega h4 { margin: 0 0 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.mega ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; }
+.mega li button { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: 0; padding: 5px 6px; border-radius: 6px; cursor: pointer; color: var(--fg-2); text-align: left; font-size: 13px; }
+.mega li button:hover { background: var(--card-2); color: var(--fg); }
+.mega li img { width: 38px; height: 22px; object-fit: contain; flex: none; }
+.mega .all { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 12px; }
+.gsearch { margin-left: auto; position: relative; width: min(320px, 34vw); }
+.gsearch input[type="search"] { width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px 8px 34px; color: var(--fg); }
+.gsearch svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--muted); }
+.pricechip { background: var(--card); border: 1px solid var(--line); color: var(--fg-2); border-radius: 99px; padding: 5px 11px; font-size: 12px; cursor: pointer; white-space: nowrap; display: flex; gap: 6px; align-items: center; }
+.pricechip i { width: 7px; height: 7px; border-radius: 50%; background: var(--good); display: inline-block; }
+.pricechip.demo i { background: var(--warn); }
+.menu-btn { display: none; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+@media (max-width: 1080px) {
+  .menu-btn { display: block; }
+  nav.main { display: none; position: absolute; left: 0; right: 0; top: 60px; background: var(--bg-2); border-bottom: 1px solid var(--line); flex-direction: column; align-items: stretch; padding: 8px max(16px, env(safe-area-inset-left, 0px)); }
+  nav.main.open { display: flex; }
+  .mega { position: static; width: auto; grid-template-columns: minmax(0, 1fr); box-shadow: none; margin-top: 6px; }
+  .gsearch { width: auto; flex: 1; }
+  .pricechip { display: none; }
+}
+@media (max-width: 560px) { .logo b { display: none; } }
+
+main { padding-block: 22px 64px; min-height: 70vh; }
+.view[hidden] { display: none !important; }
+.loading { padding: 120px 0; text-align: center; color: var(--muted); }
+
+/* ---------- Composants ---------- */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.pad { padding: 18px; }
+.stack { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.between { justify-content: space-between; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field > span { font-size: 12px; color: var(--muted); font-weight: 500; }
+input[type="text"], input[type="number"], input[type="search"], select, textarea { background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; color: var(--fg); }
+input:hover, select:hover { border-color: #3a475e; }
+input[type="number"] { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+textarea { width: 100%; min-height: 90px; font-family: var(--f-mono); font-size: 12px; }
+.btn { background: var(--card-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--fg); display: inline-flex; gap: 6px; align-items: center; justify-content: center; white-space: nowrap; }
+.btn:hover { background: var(--card-3); }
+.btn.blue { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn.blue:hover { background: var(--blue-2); }
+.btn.sm { padding: 5px 10px; font-size: 12.5px; }
+.btn.ghost { background: none; }
+.seg { display: inline-flex; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 2px; }
+.seg button { background: none; border: 0; padding: 6px 12px; border-radius: 6px; cursor: pointer; color: var(--muted); font-weight: 600; font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--card-3); color: var(--fg); }
+.pill { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--card-2); border: 1px solid var(--line); white-space: nowrap; }
+.pill.good { color: var(--good); background: rgb(34 197 94 / .1); border-color: rgb(34 197 94 / .3); }
+.pill.bad { color: var(--bad); background: rgb(239 68 68 / .1); border-color: rgb(239 68 68 / .3); }
+.pill.warn { color: var(--warn); background: rgb(234 179 8 / .1); border-color: rgb(234 179 8 / .3); }
+.wear { display: inline-grid; place-items: center; min-width: 30px; height: 22px; padding: 0 5px; border-radius: 5px; font: 700 11px var(--f-body); letter-spacing: .02em; }
+.w0 { color: #4ade80; background: rgb(74 222 128 / .14); }
+.w1 { color: #a3e635; background: rgb(163 230 53 / .13); }
+.w2 { color: #facc15; background: rgb(250 204 21 / .13); }
+.w3 { color: #fb923c; background: rgb(251 146 60 / .14); }
+.w4 { color: #f87171; background: rgb(248 113 113 / .14); }
+.wv { color: var(--fg-2); background: var(--card-3); }
+.banner { border: 1px solid rgb(234 179 8 / .35); background: rgb(234 179 8 / .07); border-radius: 10px; padding: 10px 14px; font-size: 13.5px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
 .banner b { color: var(--warn); }
-.errors { border-left: 3px solid var(--bad); padding: 6px 10px; background: color-mix(in srgb, var(--bad) 8%, transparent); font-size: 13px; border-radius: 0 6px 6px 0; }
-.warns { border-left: 3px solid var(--warn); padding: 6px 10px; background: color-mix(in srgb, var(--warn) 7%, transparent); font-size: 13px; border-radius: 0 6px 6px 0; }
-
-/* Recherche de skin */
-.picker { position: relative; flex: 1 1 260px; }
-.picker input { width: 100%; }
-.picker ul { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); max-height: 320px; overflow: auto; margin: 0; padding: 4px; list-style: none; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 12px 30px rgb(0 0 0 / .45); }
-.picker li { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 5px; cursor: pointer; }
-.picker li[aria-selected="true"], .picker li:hover { background: var(--line); }
-.picker li .col { margin-left: auto; color: var(--muted); font-size: 12px; text-align: right; }
-.picker li.dis { opacity: .45; }
-.thumb { width: 40px; height: 30px; object-fit: contain; flex: none; }
-
-/* Tableau des entrées */
+.errors { border-left: 3px solid var(--bad); padding: 8px 12px; background: rgb(239 68 68 / .08); font-size: 13px; border-radius: 0 8px 8px 0; }
+.warns { border-left: 3px solid var(--warn); padding: 8px 12px; background: rgb(234 179 8 / .07); font-size: 13px; border-radius: 0 8px 8px 0; }
+.note { font-size: 13px; color: var(--muted); }
 .tbl-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-th { text-align: left; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-td { padding: 6px 8px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); vertical-align: middle; }
-td.num, th.num { white-space: nowrap; text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
-td input[type="number"] { width: 92px; padding: 4px 6px; }
-td input.q { width: 56px; }
-.skinname { display: flex; gap: 8px; align-items: center; min-width: 180px; }
-.skinname small { display: block; color: var(--muted); font-size: 11.5px; }
-.wear { font-family: var(--f-mono); font-size: 12px; padding: 1px 6px; border-radius: 4px; background: var(--panel-2); border: 1px solid var(--line); }
-.counter { font: 600 22px var(--f-display); }
-.counter.ok { color: var(--good); }
-.counter.ko { color: var(--warn); }
+th { text-align: left; font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td.r, th.r { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-/* Résultats */
-.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.tile { background: var(--panel-2); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.tile span { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.tile b { font: 600 20px var(--f-mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.tile small { color: var(--muted); font-size: 12px; }
-.pos { color: var(--good); }
-.neg { color: var(--bad); }
-.verdict { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.pill { font-size: 12px; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--line); background: var(--panel-2); }
-.pill.good { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
-.pill.bad { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
-.pill.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+/* Image d'objet sur halo de rareté */
+.art { position: relative; display: grid; place-items: center; border-radius: 10px; overflow: hidden; background: radial-gradient(70% 70% at 50% 60%, color-mix(in srgb, var(--rc, #6b7a96) 30%, transparent), transparent 70%), var(--card-2); }
+.art img { max-width: 92%; max-height: 92%; object-fit: contain; filter: drop-shadow(0 8px 14px rgb(0 0 0 / .45)); }
+.art .ph { font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 6px; }
+.art::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--rc, transparent); }
+.art.noline::after { display: none; }
+
+/* Grilles d'objets */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; text-align: left; color: var(--fg); min-width: 0; transition: border-color .12s, transform .12s, background .12s; }
+.item:hover { border-color: #3d4b64; background: var(--card-2); transform: translateY(-2px); }
+.item .art { height: 120px; }
+.item .wpn { font-size: 12px; color: var(--muted); line-height: 1.2; }
+.item .fin { font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.item .foot { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-top: auto; }
+.item .price { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.item .var { font-size: 12px; font-weight: 600; }
+
+/* ---------- Calculateur ---------- */
+.calc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+@media (max-width: 1100px) { .calc-layout { grid-template-columns: minmax(0, 1fr); } }
+.toolbar { display: flex; gap: 14px; flex-wrap: wrap; align-items: end; }
+.rarities { display: flex; gap: 6px; flex-wrap: wrap; }
+.rarities button { border: 1px solid var(--line); background: var(--bg-2); color: var(--fg-2); border-radius: 8px; padding: 6px 11px; cursor: pointer; font-weight: 600; font-size: 12.5px; display: flex; gap: 7px; align-items: center; }
+.rarities button i { width: 9px; height: 9px; border-radius: 2px; }
+.rarities button[aria-pressed="true"] { border-color: var(--rc); background: color-mix(in srgb, var(--rc) 16%, var(--bg-2)); color: var(--fg); }
+.slots { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 900px) { .slots { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .slots { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.slot { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; position: relative; min-width: 0; }
+.slot .art { height: 84px; }
+.slot .nm { font-size: 12px; font-weight: 600; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 30px; }
+.slot .nm small { display: block; color: var(--muted); font-weight: 500; }
+.slot .kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 6px; align-items: center; font-size: 11px; color: var(--muted); }
+.slot input { width: 100%; padding: 4px 6px; font-size: 12px; border-radius: 6px; }
+.slot .x { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 6px; border: 0; background: rgb(0 0 0 / .45); color: var(--fg); cursor: pointer; font-size: 12px; line-height: 1; z-index: 2; }
+.slot .x:hover { background: var(--bad); }
+.slot.empty { border-style: dashed; background: transparent; display: grid; place-items: center; min-height: 196px; cursor: pointer; color: var(--muted); font-weight: 600; font-size: 13px; text-align: center; }
+.slot.empty:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+.slot.bad { border-color: rgb(239 68 68 / .6); }
+.slot .dup { position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; border-radius: 6px; border: 0; background: rgb(0 0 0 / .45); color: var(--fg); cursor: pointer; font-size: 13px; z-index: 2; }
+.slot .dup:hover { background: var(--blue); }
+.picker-panel { display: grid; gap: 12px; }
+.results-mini { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; max-height: 420px; overflow: auto; padding-right: 4px; }
+.mini { background: var(--card-2); border: 1px solid var(--line); border-radius: 10px; padding: 7px; display: flex; flex-direction: column; gap: 5px; cursor: pointer; text-align: left; color: var(--fg); min-width: 0; }
+.mini:hover { border-color: var(--blue); }
+.mini[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-soft); }
+.mini .art { height: 64px; }
+.mini .t { font-size: 12px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.mini .t small { display: block; color: var(--muted); font-weight: 500; }
+.mini.dis { opacity: .4; cursor: not-allowed; }
+.summary { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); display: flex; flex-direction: column; gap: 14px; }
+.big { display: flex; flex-direction: column; gap: 2px; }
+.big b { font-size: 30px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border-radius: 10px; overflow: hidden; }
+.kpis div { background: var(--card-2); padding: 10px 12px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.kpis span { font-size: 11.5px; color: var(--muted); }
+.kpis b { font-size: 15.5px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.kpis small { font-size: 11.5px; color: var(--muted); }
+.meter { height: 8px; border-radius: 99px; background: rgb(239 68 68 / .35); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--good); }
+.outs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.out { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; min-width: 0; text-align: left; color: var(--fg); }
+.out:hover { border-color: #3d4b64; }
+.out .art { height: 100px; }
+.out .chance { position: absolute; top: 8px; left: 8px; background: rgb(0 0 0 / .55); border-radius: 6px; padding: 2px 7px; font-weight: 700; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.out .meta { display: flex; justify-content: space-between; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+.out .val { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.out .val b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.out .val span { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tips { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--fg-2); }
 .chart { width: 100%; height: auto; display: block; }
-.bar-p { font-family: var(--f-mono); }
 
-/* Générateur */
-.tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.tag { border: 1px solid var(--line); background: var(--panel-2); border-radius: 99px; padding: 5px 12px; cursor: pointer; font-size: 13.5px; color: var(--muted); }
-.tag[aria-pressed="true"] { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); font-weight: 600; }
-.tag .tv { font-family: var(--f-mono); }
-.progress { height: 4px; background: var(--panel-2); border-radius: 99px; overflow: hidden; }
-.progress i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .15s; }
-.results { display: flex; flex-direction: column; gap: 10px; }
-.res { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; background: var(--panel); }
-.res .ins { font-size: 13.5px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.res .kpis { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; grid-column: 1 / -1; }
-.res .kpis div { display: flex; flex-direction: column; }
-.res .kpis span { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.res .kpis b { font-family: var(--f-mono); font-weight: 500; }
-.method { max-width: 74ch; display: flex; flex-direction: column; gap: 14px; }
-.method h3 { font-size: 18px; margin-top: 10px; }
-.method code, .method pre { font-family: var(--f-mono); font-size: 13px; background: var(--panel-2); border-radius: 4px; padding: 1px 5px; }
-.method pre { padding: 10px 12px; overflow-x: auto; }
-.method p, .method li { color: color-mix(in srgb, var(--fg) 88%, var(--muted)); }
-.loading { padding: 80px 0; text-align: center; color: var(--muted); }
-/* Wiki */
-.wbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
-.wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: 10px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 10px 0; display: flex; flex-direction: column; gap: 6px; cursor: pointer; text-align: left; overflow: hidden; min-width: 0; }
-.card:hover { border-color: var(--muted); background: var(--panel-2); }
-.card .pic { height: 96px; display: grid; place-items: center; }
-.card .pic img { max-height: 96px; max-width: 100%; object-fit: contain; }
-.card .nm { font-size: 13.5px; font-weight: 500; line-height: 1.3; overflow-wrap: anywhere; }
-.card .sub { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
-.card .sub { flex-wrap: wrap; }
-.card .sub .mono { white-space: nowrap; margin-left: auto; }
-.card .strip { height: 3px; margin: 4px -10px 0; }
-.ph { display: grid; place-items: center; width: 100%; height: 100%; min-height: 80px; border-radius: 6px; font: 600 13px var(--f-display); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: repeating-linear-gradient(135deg, var(--panel-2) 0 8px, var(--panel) 8px 16px); }
-.detail { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 20px; align-items: start; }
-@media (max-width: 860px) { .detail { grid-template-columns: minmax(0, 1fr); } }
-.hero-pic { background: radial-gradient(circle at 50% 45%, var(--panel-2), var(--panel) 70%); border: 1px solid var(--line); border-radius: 10px; display: grid; place-items: center; min-height: 220px; padding: 12px; }
-.hero-pic img { max-height: 260px; max-width: 100%; }
-.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; font-size: 14px; }
+/* ---------- Générateur ---------- */
+.gen-layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .gen-layout { grid-template-columns: minmax(0, 1fr); } }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { border: 1px solid var(--line); background: var(--bg-2); border-radius: 99px; padding: 6px 12px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--fg-2); }
+.tag:hover { border-color: #3d4b64; }
+.tag[aria-pressed="true"] { color: #fff; background: var(--blue); border-color: var(--blue); }
+.progress { height: 4px; background: var(--bg-2); border-radius: 99px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--blue); width: 0; transition: width .15s; }
+.gres { display: flex; flex-direction: column; gap: 10px; }
+.contract { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 16px; align-items: center; }
+.contract .ins { display: flex; gap: 10px; flex-wrap: wrap; }
+.contract .in { display: flex; gap: 8px; align-items: center; background: var(--card-2); border-radius: 10px; padding: 6px 10px 6px 6px; min-width: 0; }
+.contract .in .art { width: 64px; height: 44px; flex: none; border-radius: 7px; }
+.contract .in .q { font-weight: 800; font-size: 15px; }
+.contract .in .t { font-size: 12.5px; line-height: 1.3; min-width: 0; }
+.contract .in .t small { display: block; color: var(--muted); }
+.contract .k { grid-column: 1 / -1; display: flex; gap: 18px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 10px; }
+.contract .k div { display: flex; flex-direction: column; }
+.contract .k span { font-size: 11.5px; color: var(--muted); }
+.contract .k b { font-size: 14px; font-variant-numeric: tabular-nums; }
+
+/* ---------- Skins / wiki ---------- */
+.list-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .list-layout { grid-template-columns: minmax(0, 1fr); } }
+.filters { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); }
+@media (max-width: 900px) { .filters { position: static; } }
+.flist { display: flex; flex-direction: column; gap: 2px; }
+.flist button { display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: var(--fg-2); text-align: left; font-size: 13px; }
+.flist button:hover { background: var(--card-2); }
+.flist button[aria-pressed="true"] { background: var(--blue-soft); color: var(--fg); }
+.flist i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.crumbs { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 14px; flex-wrap: wrap; }
+.crumbs button { background: none; border: 0; color: var(--blue); cursor: pointer; padding: 0; font-size: 13px; }
+.sk-head { display: flex; justify-content: space-between; gap: 16px; align-items: end; flex-wrap: wrap; margin-bottom: 16px; }
+.sk-layout { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .sk-layout { grid-template-columns: minmax(0, 1fr); } }
+.sk-art { height: 250px; border-radius: 12px 12px 0 0; }
+.sk-art img { max-height: 210px; }
+.wears { display: flex; flex-direction: column; }
+.wears button { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; background: none; border: 0; border-top: 1px solid var(--line); padding: 10px 14px; cursor: pointer; color: var(--fg); text-align: left; }
+.wears button:hover { background: var(--card-2); }
+.wears button[aria-pressed="true"] { background: var(--card-2); box-shadow: inset 3px 0 0 var(--blue); }
+.wears button small { display: block; color: var(--muted); font-size: 11.5px; }
+.wears button b { font-variant-numeric: tabular-nums; }
+.markets { display: flex; flex-direction: column; gap: 8px; }
+.market { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.market.best { border-color: rgb(59 130 246 / .7); box-shadow: 0 0 0 1px rgb(59 130 246 / .25) inset; }
+.market .mk { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.mlogo { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 12px; color: #fff; flex: none; }
+.market .mk b { display: block; }
+.market .mk small { color: var(--muted); font-size: 11.5px; }
+.market .lbl { font-size: 11.5px; color: var(--muted); }
+.market .p { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 620px) { .market { grid-template-columns: minmax(0, 1fr) auto; } .market .hide-s { display: none; } }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; font-size: 13.5px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; min-width: 0; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { font-size: 12.5px; padding: 3px 9px; border-radius: 5px; background: var(--panel-2); border: 1px solid var(--line); cursor: pointer; }
-.chip:hover { border-color: var(--muted); }
-.up { color: var(--good); } .down { color: var(--bad); }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: flex; gap: 8px; align-items: center; font-size: 12.5px; padding: 4px 10px 4px 4px; border-radius: 8px; background: var(--card-2); border: 1px solid var(--line); cursor: pointer; color: var(--fg); }
+.chip:hover { border-color: #3d4b64; }
+.chip .art { width: 44px; height: 30px; border-radius: 6px; flex: none; }
+.chip .art .ph, .contract .in .art .ph { display: none; }
+.chip.text { padding: 5px 10px; }
+.method { max-width: 76ch; }
+.method p, .method li { color: var(--fg-2); }
+.method h3 { font-size: 18px; margin-top: 14px; }
+.method pre { font-family: var(--f-mono); font-size: 13px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
+footer { border-top: 1px solid var(--line); padding-block: 22px; color: var(--muted); font-size: 12.5px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 
 <header class="top">
-  <div class="wrap">
-    <div class="brand"><b>Float<span>Forge</span></b><small>contrats d'échange CS2</small></div>
-    <nav class="tabs" role="tablist">
-      <button role="tab" data-view="calc" aria-selected="true">Calculateur</button>
-      <button role="tab" data-view="gen" aria-selected="false">Générateur</button>
-      <button role="tab" data-view="wiki" aria-selected="false">Wiki</button>
-      <button role="tab" data-view="prices" aria-selected="false">Prix</button>
-      <button role="tab" data-view="method" aria-selected="false">Méthode</button>
+  <div class="wrap topbar">
+    <button class="logo" type="button" data-go="calc" aria-label="FloatForge, accueil">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="#3b82f6"/><path d="M10 22V10h11M10 16h8" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22.5" cy="21.5" r="2.5" fill="#fff"/></svg>
+      <b>Float<span>Forge</span></b>
+    </button>
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false">☰</button>
+    <nav class="main" id="mainNav">
+      <button type="button" data-go="calc">Trade up</button>
+      <button type="button" data-go="gen">Générateur</button>
+      <div class="dd">
+        <button type="button" id="skinsMenuBtn" aria-expanded="false" aria-controls="megaMenu">Skins <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" stroke="currentColor" fill="none" stroke-width="1.5"/></svg></button>
+        <div class="mega" id="megaMenu" hidden></div>
+      </div>
+      <button type="button" data-go="collections">Collections</button>
+      <button type="button" data-go="prices">Prix</button>
+      <button type="button" data-go="method">Méthode</button>
     </nav>
-    <button class="pricebadge" id="priceBadge" type="button">Prix : …</button>
+    <div class="gsearch">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" id="gq" placeholder="Rechercher un skin…" autocomplete="off" aria-label="Rechercher un skin">
+    </div>
+    <button class="pricechip" id="priceChip" type="button"><i></i><span>Prix…</span></button>
   </div>
 </header>
 
 <main class="wrap">
-  <div class="loading" id="loading">Chargement des skins et collections…</div>
+  <div class="loading" id="loading">Chargement des skins…</div>
+  <div class="banner" id="demoBanner" hidden><b>Prix de démonstration.</b> Les prix affichés sont fictifs. Sur le site en ligne, les vrais prix multi-marchés se chargent tout seuls. <button class="btn sm" data-go="prices" type="button">Voir les prix</button></div>
 
-  <!-- ============ CALCULATEUR ============ -->
+  <!-- ============ TRADE UP ============ -->
   <section class="view" id="view-calc" hidden>
-    <div class="banner" id="demoBanner" hidden><b>Prix de démonstration.</b> Les prix affichés sont fictifs, pour tester l'outil. Importez de vrais prix dans l'onglet Prix avant de décider d'un contrat. <button class="btn small" data-go="prices" type="button">Importer des prix</button></div>
-    <div class="grid2" style="margin-top:14px">
-      <div class="panel">
-        <h2>Contrat</h2>
-        <div class="row">
-          <label class="field" style="flex:1 1 200px"><span>Rareté des entrées</span>
-            <select id="rar"></select></label>
-          <div class="field"><span>Type</span>
-            <div class="seg" id="stSeg"><button type="button" data-st="0" aria-pressed="true">Normal</button><button type="button" data-st="1" aria-pressed="false">StatTrak™</button></div></div>
-        </div>
-        <div class="row">
-          <label class="field"><span>Frais de revente %</span><input type="number" id="fee" min="0" max="50" step="0.5" value="0" style="width:90px"></label>
-          <div class="field"><span>Préréglages</span>
-            <div class="row" style="gap:4px"><button class="btn small" data-fee="0" type="button">0 %</button><button class="btn small" data-fee="2" type="button">CSFloat 2 %</button><button class="btn small" data-fee="15" type="button">Steam 15 %</button></div></div>
-          <label class="field"><span>Formule du float</span>
-            <select id="formula"><option value="new">Normalisée (depuis oct. 2025)</option><option value="old">Ancienne (moyenne brute)</option></select></label>
+    <div class="sk-head">
+      <div class="stack" style="gap:4px"><div class="eyebrow">Contrat d'échange</div><h1>Calculateur de trade up</h1></div>
+      <div class="row"><button class="btn" id="sampleBtn" type="button">Exemple</button><button class="btn" id="clearBtn" type="button">Vider</button></div>
+    </div>
+    <div class="calc-layout">
+      <div class="stack" style="gap:18px">
+        <div class="card pad stack">
+          <div class="field"><span>Rareté des entrées</span><div class="rarities" id="rarBtns"></div></div>
+          <div class="toolbar">
+            <div class="field"><span>Type</span><div class="seg" id="stSeg"><button type="button" data-st="0" aria-pressed="true">Normal</button><button type="button" data-st="1" aria-pressed="false">StatTrak™</button></div></div>
+            <label class="field"><span>Frais de revente</span><select id="fee"><option value="0">Aucun (0 %)</option><option value="2">CSFloat (2 %)</option><option value="5">Buff163 (≈ 2,5 % + retrait)</option><option value="8">Skinport (8 %)</option><option value="15">Steam (15 %)</option></select></label>
+            <label class="field"><span>Formule du float</span><select id="formula"><option value="new">Normalisée (depuis oct. 2025)</option><option value="old">Ancienne (moyenne brute)</option></select></label>
+          </div>
         </div>
 
-        <h2>Ajouter une entrée</h2>
-        <div class="row">
-          <div class="picker field"><span>Skin</span>
-            <input type="search" id="pickInput" placeholder="Rechercher un skin ou une collection…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="pickList">
-            <ul id="pickList" role="listbox" hidden></ul></div>
+        <div class="stack">
+          <div class="row between"><h2>Entrées <span class="muted" id="counter">0/10</span></h2><span class="note" id="slotHint">Cliquez sur une case vide pour ajouter un skin.</span></div>
+          <div class="slots" id="slots"></div>
         </div>
-        <div class="row" id="addRow">
-          <label class="field"><span>Float</span><input type="number" id="addFloat" step="0.0001" min="0" max="1" style="width:110px"></label>
-          <label class="field"><span>Quantité</span><input type="number" id="addQty" min="1" max="10" value="1" style="width:70px"></label>
-          <label class="field"><span>Prix unitaire</span><input type="number" id="addPrice" step="0.01" min="0" placeholder="auto" style="width:100px"></label>
-          <button class="btn primary" id="addBtn" type="button">Ajouter</button>
-          <button class="btn" id="fillBtn" type="button" title="Ajoute ce skin jusqu'à compléter le contrat">Compléter</button>
-        </div>
-        <div class="note" id="addInfo">Choisissez un skin pour voir sa plage de float.</div>
 
-        <div class="row" style="justify-content:space-between;align-items:center">
-          <h2>Entrées <span class="counter" id="counter">0/10</span></h2>
-          <div class="row" style="gap:6px"><button class="btn small ghost" id="sampleBtn" type="button">Exemple</button><button class="btn small ghost" id="clearBtn" type="button">Vider</button></div>
+        <div class="card pad picker-panel" id="pickerPanel">
+          <div class="row between"><h2>Ajouter un skin</h2><span class="note" id="pickCount"></span></div>
+          <div class="row">
+            <input type="search" id="pickQ" placeholder="Nom, arme ou collection…" style="flex:1 1 240px" autocomplete="off" aria-label="Rechercher un skin à ajouter">
+            <label class="field" style="flex-direction:row;align-items:center;gap:6px"><span>Float</span><input type="number" id="addFloat" step="0.0001" min="0" max="1" style="width:100px"></label>
+            <label class="field" style="flex-direction:row;align-items:center;gap:6px"><span>Prix</span><input type="number" id="addPrice" step="0.01" min="0" placeholder="auto" style="width:90px"></label>
+            <button class="btn blue" id="addBtn" type="button">Ajouter</button>
+            <button class="btn" id="fillBtn" type="button">Compléter</button>
+          </div>
+          <div class="note" id="addInfo">Choisissez un skin ci-dessous.</div>
+          <div class="results-mini" id="pickRes"></div>
         </div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>Skin</th><th class="num">Float</th><th>Usure</th><th class="num">Qté</th><th class="num">Prix u.</th><th></th></tr></thead>
-          <tbody id="lines"></tbody>
-        </table></div>
-        <div class="note">Laissez le prix vide pour utiliser le prix de la base. Le float et la quantité se modifient directement dans le tableau.</div>
+
+        <div class="stack" id="outsBox">
+          <div class="row between"><h2>Issues possibles</h2><span class="note" id="outsNote"></span></div>
+          <div class="outs" id="outs"></div>
+          <div class="card pad" id="chartCard"></div>
+          <div class="card pad tips" id="floatHelp" hidden></div>
+        </div>
       </div>
 
-      <div class="panel" id="resultPanel">
-        <div class="row" style="justify-content:space-between;align-items:center"><h2>Résultat</h2><div class="verdict" id="verdict"></div></div>
-        <div id="msgs"></div>
-        <div class="tiles" id="tiles"></div>
-        <div id="chartBox"></div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>Issue possible</th><th class="num">Chance</th><th class="num">Float</th><th>Usure</th><th class="num">Prix</th><th class="num">Net</th><th class="num">Gain</th></tr></thead>
-          <tbody id="outs"></tbody>
-        </table></div>
-        <div class="note" id="floatHelp"></div>
-      </div>
+      <aside class="summary">
+        <div class="card pad stack" id="sumCard"></div>
+        <div id="msgs" class="stack" style="gap:8px"></div>
+      </aside>
     </div>
   </section>
 
   <!-- ============ GÉNÉRATEUR ============ -->
   <section class="view" id="view-gen" hidden>
-    <div class="banner" id="demoBanner2" hidden><b>Prix de démonstration.</b> Les contrats trouvés avec des prix fictifs ne veulent rien dire. Importez de vrais prix d'abord. <button class="btn small" data-go="prices" type="button">Importer des prix</button></div>
-    <div class="grid2" style="margin-top:14px;grid-template-columns:minmax(0,4fr) minmax(0,7fr)">
-      <div class="panel">
-        <h2>Recherche</h2>
+    <div class="sk-head"><div class="stack" style="gap:4px"><div class="eyebrow">Recherche automatique</div><h1>Générateur de trade ups</h1></div></div>
+    <div class="gen-layout">
+      <div class="card pad stack filters">
+        <div class="field"><span>Rareté des entrées</span><div class="rarities" id="gRarBtns"></div></div>
         <div class="row">
-          <label class="field" style="flex:1 1 200px"><span>Rareté des entrées</span><select id="gRar"></select></label>
-          <div class="field"><span>Type</span>
-            <div class="seg" id="gStSeg"><button type="button" data-st="0" aria-pressed="true">Normal</button><button type="button" data-st="1" aria-pressed="false">StatTrak™</button></div></div>
+          <div class="field"><span>Type</span><div class="seg" id="gStSeg"><button type="button" data-st="0" aria-pressed="true">Normal</button><button type="button" data-st="1" aria-pressed="false">StatTrak™</button></div></div>
+          <label class="field"><span>Collections</span><select id="gCols"><option value="1">1 seule</option><option value="2" selected>1 ou 2</option></select></label>
         </div>
         <div class="row">
           <label class="field"><span>Budget max</span><input type="number" id="gBudget" min="0" step="1" placeholder="aucun" style="width:100px"></label>
-          <label class="field"><span>Frais %</span><input type="number" id="gFee" min="0" max="50" step="0.5" value="0" style="width:80px"></label>
-          <label class="field"><span>Collections</span><select id="gCols"><option value="1">1 seule</option><option value="2" selected>1 ou 2</option></select></label>
+          <label class="field"><span>Frais %</span><input type="number" id="gFee" min="0" max="50" step="0.5" value="2" style="width:80px"></label>
         </div>
-        <label class="field"><span>Float supposé dans chaque tranche : <b class="mono" id="gPosV">50 %</b></span>
-          <input type="range" id="gPos" min="0" max="100" value="50"></label>
-        <div class="note">0 % = meilleur float de la tranche (plus cher en vrai), 100 % = pire float de la tranche (le moins cher). Le prix utilisé est celui de la tranche.</div>
-        <div class="field"><span>Usures autorisées en entrée</span><div class="row" id="gWears" style="gap:4px"></div></div>
-
-        <h2>Critères</h2>
-        <div class="tags" id="gTags"></div>
+        <label class="field"><span>Float supposé dans la tranche : <b class="mono" id="gPosV">50 %</b></span><input type="range" id="gPos" min="0" max="100" value="50"></label>
+        <div class="field"><span>Usures autorisées en entrée</span><div class="tags" id="gWears"></div></div>
+        <div class="field"><span>Critères</span><div class="tags" id="gTags"></div></div>
         <div class="row">
-          <label class="field"><span>Seuil « remboursé »</span><input type="number" id="gRefund" min="0" max="200" step="5" value="90" style="width:80px"></label>
+          <label class="field"><span>« Remboursé » ≥ %</span><input type="number" id="gRefund" min="0" max="200" step="5" value="90" style="width:80px"></label>
           <label class="field"><span>ROI min %</span><input type="number" id="gRoi" step="5" value="10" style="width:80px"></label>
           <label class="field"><span>Jackpot ×</span><input type="number" id="gJack" step="1" min="1" value="5" style="width:70px"></label>
         </div>
-        <label class="field"><span>Trier par</span>
-          <select id="gSort"><option value="roi">Rentabilité (ROI)</option><option value="profit">Gain espéré</option><option value="pProfit">Chance de profit</option><option value="worstRatio">Pire issue (sécurité)</option><option value="best">Meilleure issue</option><option value="cost">Coût le plus bas</option></select></label>
-        <button class="btn primary" id="gRun" type="button">Chercher les contrats</button>
+        <label class="field"><span>Trier par</span><select id="gSort"><option value="roi">Rentabilité (ROI)</option><option value="profit">Gain espéré</option><option value="pProfit">Chance de profit</option><option value="worstRatio">Pire issue (sécurité)</option><option value="best">Meilleure issue</option><option value="cost">Coût le plus bas</option></select></label>
+        <button class="btn blue" id="gRun" type="button">Chercher les contrats</button>
         <div class="progress" aria-hidden="true"><i id="gProg"></i></div>
         <div class="note" id="gStatus"></div>
       </div>
-      <div class="panel">
-        <div class="row" style="justify-content:space-between;align-items:center"><h2>Contrats trouvés</h2><span class="note" id="gCount"></span></div>
-        <div class="results" id="gResults"><div class="note">Choisissez vos critères puis lancez la recherche. Chaque contrat trouvé peut être ouvert dans le calculateur pour l'ajuster.</div></div>
+      <div class="stack">
+        <div class="row between"><h2>Contrats trouvés</h2><span class="note" id="gCount"></span></div>
+        <div class="gres" id="gResults"><div class="card pad note">Choisissez vos critères puis lancez la recherche. Chaque contrat s'ouvre dans le calculateur pour l'ajuster.</div></div>
       </div>
     </div>
   </section>
 
-  <!-- ============ WIKI ============ -->
-  <section class="view" id="view-wiki" hidden>
-    <div class="panel" style="margin-bottom:14px">
-      <div class="wbar">
-        <div class="seg" id="wMode"><button type="button" data-m="skins" aria-pressed="true">Skins</button><button type="button" data-m="cols" aria-pressed="false">Collections</button></div>
-        <label class="field" style="flex:1 1 220px"><span>Recherche</span><input type="search" id="wq" placeholder="AK-47, Asiimov, Fever…" autocomplete="off"></label>
-        <label class="field"><span>Catégorie</span><select id="wcat"></select></label>
-        <label class="field"><span>Rareté</span><select id="wrar"></select></label>
-        <label class="field"><span>Trier</span><select id="wsort"><option value="name">Nom</option><option value="rar">Rareté</option><option value="pdesc">Prix décroissant</option><option value="pasc">Prix croissant</option><option value="var">Variation 7 j</option></select></label>
-      </div>
-    </div>
-    <div id="wikiBody"></div>
-  </section>
+  <!-- ============ SKINS ============ -->
+  <section class="view" id="view-skins" hidden><div id="skinsBody"></div></section>
+  <!-- ============ COLLECTIONS ============ -->
+  <section class="view" id="view-collections" hidden><div id="colsBody"></div></section>
 
   <!-- ============ PRIX ============ -->
   <section class="view" id="view-prices" hidden>
-    <div class="grid2">
-      <div class="panel">
-        <h2>Source des prix</h2>
+    <div class="sk-head"><div class="stack" style="gap:4px"><div class="eyebrow">Données de marché</div><h1>Prix</h1></div></div>
+    <div class="calc-layout" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+      <div class="card pad stack">
+        <h2>Source automatique</h2>
         <div id="priceStatus" class="note"></div>
-        <label class="field"><span>Prix utilisé (source automatique)</span><select id="pAutoField"><option value="0">Le moins cher en vente</option><option value="1">Prix suggéré</option><option value="3">Moyenne des ventes 24 h</option><option value="4">Médiane des ventes 7 j</option><option value="5">Médiane des ventes 30 j</option></select></label>
-        <div class="note">Sur le site en ligne, les prix Skinport sont rafraîchis automatiquement toutes les heures. Un import manuel ci-dessous les remplace jusqu'à ce que vous reveniez à la source automatique.</div>
-        <p class="note" style="margin:0">FloatForge ne contacte aucun site de vente. Vous importez vous-même une liste de prix, elle reste dans votre navigateur.</p>
-        <ol class="small" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">
-          <li>Ouvrez par exemple <a href="https://api.skinport.com/v1/items?app_id=730&amp;currency=EUR" target="_blank" rel="noopener">l'API publique Skinport (EUR)</a> et enregistrez la page (fichier .json).</li>
-          <li>Importez le fichier ci-dessous, ou collez son contenu.</li>
-        </ol>
-        <div class="row">
-          <label class="field"><span>Fichier de prix (.json ou .csv)</span><input type="file" id="pFile" accept=".json,.csv,.txt,application/json,text/csv"></label>
-        </div>
-        <label class="field"><span>…ou collez ici</span><textarea id="pPaste" placeholder='[{"market_hash_name":"AK-47 | Redline (Field-Tested)","min_price":12.3}, …]  ou  {"AK-47 | Redline (Field-Tested)": 12.3}  ou  CSV nom;prix'></textarea></label>
-        <div class="row">
-          <label class="field"><span>Champ de prix (Skinport)</span><select id="pField"><option value="min_price">min_price (moins cher)</option><option value="suggested_price">suggested_price</option><option value="median_price">median_price</option><option value="mean_price">mean_price</option></select></label>
-          <label class="field"><span>Devise</span><select id="pCur"><option>€</option><option>$</option><option>£</option><option>¥</option></select></label>
-          <button class="btn primary" id="pImport" type="button">Importer</button>
-        </div>
-        <div class="row"><button class="btn" id="pDemo" type="button">Revenir aux prix automatiques</button><button class="btn" id="pCopy" type="button">Copier mes prix (JSON)</button></div>
-        <div class="note" id="pMsg"></div>
+        <label class="field"><span>Prix utilisé dans les calculs</span><select id="pAutoField"><option value="0">Prix de référence (médiane des marchés)</option><option value="1">Le moins cher parmi les marchés</option><option value="2">Médiane des ventes 7 j (Skinport)</option><option value="3">Médiane des ventes 30 j (Skinport)</option></select></label>
+        <div class="note">Le prix de référence est la médiane des prix les plus bas sur Buff163, YouPin, CSFloat, Skinport, Market.CSGO, CS.MONEY et BitSkins, après retrait des valeurs aberrantes. Steam et les sites d'échange sont affichés mais exclus. Mise à jour toutes les heures.</div>
+        <div id="marketList" class="chips"></div>
       </div>
-      <div class="panel">
-        <h2>Corriger un prix à la main</h2>
-        <div class="picker field"><span>Skin</span><input type="search" id="pmInput" placeholder="Rechercher un skin…" autocomplete="off"><ul id="pmList" role="listbox" hidden></ul></div>
-        <div id="pmEditor" class="note">Les prix saisis ici remplacent ceux de l'import.</div>
+      <div class="card pad stack">
+        <h2>Import manuel</h2>
+        <div class="note">Remplace les prix automatiques jusqu'à ce que vous reveniez à la source automatique.</div>
+        <label class="field"><span>Fichier (.json ou .csv)</span><input type="file" id="pFile" accept=".json,.csv,.txt,application/json,text/csv"></label>
+        <label class="field"><span>…ou collez ici</span><textarea id="pPaste" placeholder='{"AK-47 | Redline (Field-Tested)": 12.3}  ou  CSV nom;prix  ou  export Skinport'></textarea></label>
+        <div class="row">
+          <label class="field"><span>Champ (export Skinport)</span><select id="pField"><option value="min_price">min_price</option><option value="suggested_price">suggested_price</option><option value="median_price">median_price</option></select></label>
+          <label class="field"><span>Devise</span><select id="pCur"><option>€</option><option>$</option><option>£</option><option>¥</option></select></label>
+        </div>
+        <div class="row"><button class="btn blue" id="pImport" type="button">Importer</button><button class="btn" id="pDemo" type="button">Revenir aux prix automatiques</button></div>
+        <div class="note" id="pMsg"></div>
+        <h2>Corriger un prix</h2>
+        <input type="search" id="pmQ" placeholder="Rechercher un skin…" autocomplete="off" aria-label="Skin dont corriger le prix">
+        <div class="results-mini" id="pmRes" style="max-height:220px"></div>
+        <div id="pmEditor" class="note">Les prix saisis ici passent avant tout le reste.</div>
       </div>
     </div>
   </section>
 
   <!-- ============ MÉTHODE ============ -->
   <section class="view" id="view-method" hidden>
-    <div class="panel method">
-      <h1 style="font-size:26px">Comment FloatForge calcule</h1>
+    <div class="card pad method stack">
+      <div class="eyebrow">Méthode</div>
+      <h1>Comment FloatForge calcule</h1>
       <h3>Entrées</h3>
       <p>Un contrat prend <b>10 skins</b> de même rareté et rend un skin de la rareté suivante. Depuis la mise à jour du 22 octobre 2025, <b>5 skins Secret (Covert)</b> donnent un couteau ou des gants. On ne mélange pas StatTrak™ et normal. Cinq Secret StatTrak™ donnent toujours un couteau StatTrak™, jamais des gants.</p>
       <h3>Probabilités</h3>
@@ -342,29 +437,27 @@ td input.q { width: 56px; }
       <pre>P(issue) = (entrées de sa collection ÷ entrées totales) ÷ nombre de sorties de la collection</pre>
       <p>Pour les couteaux et gants, les sorties sont tous les objets dorés de la caisse liée à la collection. Les collections de carte et Armory n'en ont pas.</p>
       <h3>Float de sortie</h3>
-      <p>Chaque float d'entrée est d'abord ramené à la plage de son skin, puis la moyenne est replacée dans la plage du skin obtenu.</p>
       <pre>normalisé = (float − min) ÷ (max − min)
 float sortie = min_sortie + moyenne(normalisés) × (max_sortie − min_sortie)</pre>
-      <p>L'ancienne formule (moyenne brute des floats) reste disponible pour comparer. Les tranches d'usure : FN &lt; 0,07 ≤ MW &lt; 0,15 ≤ FT &lt; 0,38 ≤ WW &lt; 0,45 ≤ BS.</p>
+      <p>L'ancienne formule (moyenne brute) reste disponible pour comparer. Tranches : FN &lt; 0,07 ≤ MW &lt; 0,15 ≤ FT &lt; 0,38 ≤ WW &lt; 0,45 ≤ BS.</p>
+      <h3>Prix</h3>
+      <p>Toutes les heures, un robot récupère le prix le plus bas de chaque objet sur plusieurs marchés (Buff163, YouPin, CSFloat, Skinport, Market.CSGO, CS.MONEY, BitSkins, plus Steam et des sites d'échange pour comparaison) via les API publiques de Skinport et Market.CSGO et l'agrégateur gratuit de l'extension CSGO Trader. Le prix de référence est la médiane des marchés où l'on paie en argent réel, sans les valeurs aberrantes.</p>
       <h3>Statistiques</h3>
       <ul>
         <li><b>Net</b> : prix de l'issue moins les frais de revente.</li>
         <li><b>Valeur espérée</b> : somme des nets pondérés par leur chance. <b>ROI</b> = (valeur espérée − coût) ÷ coût.</li>
-        <li><b>Médiane</b> : valeur nette atteinte ou dépassée avec 50 % de chance (pondérée par les probabilités).</li>
-        <li><b>Chance de profit</b> : probabilité que le net dépasse le coût total.</li>
-        <li><b>Écart-type</b> : dispersion des nets autour de la valeur espérée (le risque).</li>
+        <li><b>Médiane</b> : valeur atteinte ou dépassée avec 50 % de chance. <b>Écart-type</b> : le risque.</li>
       </ul>
-      <h3>Générateur</h3>
-      <p>Pour chaque collection, le générateur garde les entrées les plus intéressantes (le moins cher pour un float donné) dans chaque usure, puis essaie toutes les combinaisons à une ou deux collections et toutes les répartitions (1/9, 2/8…). Les contrats retenus doivent cocher tous les critères choisis.</p>
-      <h3>Limites connues</h3>
+      <h3>Limites</h3>
       <ul>
-        <li>Valve ne publie pas de règle officielle : ces formules viennent des calculateurs publics et de la communauté (sources : <a href="https://zap-hosting.com/en/tools/cs2/trade-up-calculator" target="_blank" rel="noopener">ZAP-Hosting</a>, <a href="https://csdb.gg/guides/cs2-knife-trade-ups/" target="_blank" rel="noopener">CSDB</a>).</li>
-        <li>Données des skins : <a href="https://github.com/ByMykel/CSGO-API" target="_blank" rel="noopener">ByMykel/CSGO-API</a>. Les phases Doppler et Gamma Doppler comptent pour une seule finition, et leur prix est celui sans phase.</li>
-        <li>Le prix d'une tranche d'usure ne tient pas compte du float exact (un FN 0,001 vaut souvent plus qu'un FN 0,069).</li>
+        <li>Valve ne publie pas de règle officielle : formules issues de la communauté (<a href="https://zap-hosting.com/en/tools/cs2/trade-up-calculator" target="_blank" rel="noopener">ZAP-Hosting</a>, <a href="https://csdb.gg/guides/cs2-knife-trade-ups/" target="_blank" rel="noopener">CSDB</a>).</li>
+        <li>Données des skins : <a href="https://github.com/ByMykel/CSGO-API" target="_blank" rel="noopener">ByMykel/CSGO-API</a>. Phases Doppler regroupées.</li>
+        <li>Le prix d'une tranche d'usure ignore le float exact (un FN 0,001 vaut souvent plus qu'un FN 0,069).</li>
       </ul>
     </div>
   </section>
 </main>
+<footer><div class="wrap row between"><span>FloatForge · calculateur de trade up CS2. Non affilié à Valve.</span><span id="footPrice"></span></div></footer>
 
 <script src="engine.js"></script>
 <script>
@@ -377,594 +470,528 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem('ff_' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('ff_' + k, JSON.stringify(v)); } catch { /* stockage indisponible */ } }
 };
-let D = null;           // données skins/collections
-let prices = store.get('prices', null);   // {map:{nom:prix}, source, date}
-let manual = store.get('manual', {});     // corrections manuelles {nom:prix}
+let D = null;
+let prices = store.get('prices', null);       // import manuel {map, source, date}
+let manual = store.get('manual', {});         // corrections {nom: prix}
 let cur = store.get('cur', '€');
-let auto = null;                          // prix automatiques (data/prices.json)
-let autoField = +store.get('autoField', 0);
-const CUR_SYM = { EUR: '€', USD: '$', GBP: '£', CNY: '¥', PLN: 'zł', BRL: 'R$', RUB: '₽' };
-function autoRow(name) { return auto && auto.items ? auto.items[name] : null; }
+let auto = null;                              // data/prices.json (v2)
+let autoField = +store.get('autoField2', 0);
+const CUR_SYM = { EUR: '€', USD: '$', GBP: '£', CNY: '¥' };
+const CAT_FR = { Pistols: 'Pistolets', Rifles: 'Fusils', SMGs: 'Mitraillettes', Heavy: 'Armes lourdes', Knives: 'Couteaux', Gloves: 'Gants' };
+const MARKETS = {
+  buff163: { n: 'Buff163', c: '#d4a017', u: n => 'https://buff.163.com/market/csgo#tab=selling&search=' + encodeURIComponent(n) },
+  youpin: { n: 'YouPin898', c: '#f0642d', u: () => 'https://www.youpin898.com/' },
+  csfloat: { n: 'CSFloat', c: '#2c6bed', u: n => 'https://csfloat.com/search?market_hash_name=' + encodeURIComponent(n) },
+  skinport: { n: 'Skinport', c: '#fa490a', u: n => 'https://skinport.com/market?search=' + encodeURIComponent(n) },
+  marketcsgo: { n: 'Market.CSGO', c: '#1f9d55', u: n => 'https://market.csgo.com/en/?search=' + encodeURIComponent(n) },
+  csmoney: { n: 'CS.MONEY', c: '#e0277f', u: n => 'https://cs.money/market/buy/?search=' + encodeURIComponent(n) },
+  bitskins: { n: 'BitSkins', c: '#4a5fd6', u: n => 'https://bitskins.com/market/cs2?search=' + encodeURIComponent(n) },
+  lootfarm: { n: 'Loot.Farm', c: '#6c7a89', u: () => 'https://loot.farm/', trade: true },
+  csgoempire: { n: 'CSGOEmpire', c: '#b8860b', u: () => 'https://csgoempire.com/', trade: true },
+  swapgg: { n: 'Swap.gg', c: '#7c3aed', u: () => 'https://swap.gg/', trade: true },
+  steam: { n: 'Steam', c: '#1b2838', u: n => 'https://steamcommunity.com/market/listings/730/' + encodeURIComponent(n), steam: true }
+};
 
 /* ---------- Prix ---------- */
 function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967295; }
-const DEMO_BASE = [0.04, 0.09, 0.3, 1.4, 6, 28, 320];
-const DEMO_WEAR = [2.3, 1.45, 1, 0.85, 0.75];
-function demoPrice(s, w, st) {
-  const k = hash(s.n);
-  let p = DEMO_BASE[s.r] * (0.35 + 3.2 * k * k) * (w < 0 ? 1 : DEMO_WEAR[w]) * (st ? 2.1 : 1);
-  if (s.r === 6) p *= s.g ? 0.9 : 1;
-  return Math.round(p * 100) / 100;
-}
+const DEMO_BASE = [0.04, 0.09, 0.3, 1.4, 6, 28, 320], DEMO_WEAR = [2.3, 1.45, 1, 0.85, 0.75];
+function demoPrice(s, w, st) { const k = hash(s.n); return Math.round(DEMO_BASE[s.r] * (0.35 + 3.2 * k * k) * (w < 0 ? 1 : DEMO_WEAR[w]) * (st ? 2.1 : 1) * 100) / 100; }
+const autoRow = name => auto && auto.items ? auto.items[name] : null;
 function priceOf(si, w, st) {
-  const s = D.skins[si];
-  const name = FF.marketName(s, w, st);
+  const s = D.skins[si], name = FF.marketName(s, w, st);
   if (manual[name] != null) return manual[name];
   if (prices && prices.map) { const v = prices.map[name]; return v == null ? null : v; }
-  if (auto) { const r = autoRow(name); if (!r) return null; const v = r[autoField] ?? r[0] ?? r[1] ?? r[4]; return v == null ? null : v; }
+  if (auto) { const r = autoRow(name); if (!r) return null; return r[autoField] ?? r[0] ?? r[1] ?? null; }
   return demoPrice(s, w, st);
 }
 const isDemo = () => !(prices && prices.map) && !auto;
 const money = v => v == null ? '—' : (Math.abs(v) >= 1000 ? v.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : v.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + ' ' + cur;
 const pct = (v, d = 1) => (v * 100).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) + ' %';
-const flt = v => v == null ? '—' : v.toFixed(6).replace(/0+$/, '').replace(/\.$/, '.0');
-
-function updatePriceBadge() {
-  const b = $('#priceBadge');
-  if (isDemo()) { b.textContent = 'Prix : démo (fictifs)'; b.classList.add('demo'); }
-  else if (!(prices && prices.map)) { b.textContent = 'Prix : ' + auto.source + ' · ' + ago(auto.updated); b.classList.remove('demo'); }
-  else { b.textContent = 'Prix : ' + prices.source + ' · ' + new Date(prices.date).toLocaleDateString('fr-FR'); b.classList.remove('demo'); }
-  $('#demoBanner').hidden = !isDemo(); $('#demoBanner2').hidden = !isDemo();
-  const n = prices && prices.map ? Object.keys(prices.map).length : 0;
-  $('#priceStatus').innerHTML = (auto ? '<span class="pill good">Auto</span> ' + Object.keys(auto.items).length.toLocaleString('fr-FR') + ' prix ' + esc(auto.source) + ' en ' + esc(auto.currency) + ', mis à jour ' + ago(auto.updated) + '.<br>' : '') + (isDemo()
-    ? '<span class="pill warn">Démo</span> Prix fictifs générés automatiquement. ' + Object.keys(manual).length + ' correction(s) manuelle(s).'
-    : (prices && prices.map ? '<span class="pill good">Importés (prioritaires)</span> ' + n.toLocaleString('fr-FR') + ' prix (' + esc(prices.source) + ', ' + new Date(prices.date).toLocaleString('fr-FR') + '). ' : '') + Object.keys(manual).length + ' correction(s) manuelle(s).');
-}
+const flt = v => v == null ? '—' : v.toFixed(5);
+const sgn = x => x > 0 ? 'pos' : x < 0 ? 'neg' : '';
+const plus = v => (v > 0 ? '+' : '') + money(v);
 function ago(iso) {
   const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
   if (!isFinite(m)) return '—';
-  if (m < 1) return "à l'instant";
-  if (m < 60) return 'il y a ' + m + ' min';
-  if (m < 48 * 60) return 'il y a ' + Math.round(m / 60) + ' h';
+  if (m < 1) return "à l'instant"; if (m < 60) return 'il y a ' + m + ' min'; if (m < 2880) return 'il y a ' + Math.round(m / 60) + ' h';
   return 'le ' + new Date(iso).toLocaleDateString('fr-FR');
 }
-
+function updatePriceUI() {
+  const chip = $('#priceChip');
+  chip.classList.toggle('demo', isDemo());
+  const label = isDemo() ? 'Prix de démo' : (prices && prices.map) ? 'Prix importés' : 'Prix multi-marchés · ' + ago(auto.updated);
+  chip.querySelector('span').textContent = label;
+  $('#demoBanner').hidden = !isDemo();
+  $('#footPrice').textContent = auto ? 'Prix mis à jour ' + ago(auto.updated) + ' (' + Object.keys(auto.items).length.toLocaleString('fr-FR') + ' objets)' : '';
+  $('#priceStatus').innerHTML = auto
+    ? '<span class="pill good">Actif</span> ' + Object.keys(auto.items).length.toLocaleString('fr-FR') + ' objets, en ' + esc(auto.currency) + ', mis à jour ' + ago(auto.updated) + '.' + ((prices && prices.map) ? '<br><span class="pill warn">Import manuel prioritaire</span> ' + Object.keys(prices.map).length.toLocaleString('fr-FR') + ' prix (' + esc(prices.source) + ').' : '')
+    : (prices && prices.map) ? '<span class="pill good">Import</span> ' + Object.keys(prices.map).length.toLocaleString('fr-FR') + ' prix (' + esc(prices.source) + ').' : '<span class="pill warn">Démo</span> Aucun prix automatique disponible ici (aperçu). Prix fictifs.';
+  $('#marketList').innerHTML = auto && auto.markets ? auto.markets.map(m => { const M = MARKETS[m] || { n: m, c: '#555' }; const ref = (auto.ref_markets || []).includes(m); return '<span class="chip text"><span class="mlogo" style="width:20px;height:20px;font-size:10px;border-radius:5px;background:' + M.c + '">' + esc(M.n[0]) + '</span>' + esc(M.n) + (ref ? '' : ' <span class="muted small">(comparaison)</span>') + '</span>'; }).join('') : '';
+}
 function parsePrices(text, field) {
-  text = text.trim();
-  const map = {};
+  text = text.trim(); const map = {};
   if (text.startsWith('[') || text.startsWith('{')) {
     const j = JSON.parse(text);
-    if (Array.isArray(j)) {
-      for (const it of j) {
-        const name = it.market_hash_name || it.name || it.market_name;
-        let v = it[field]; if (v == null) v = it.min_price ?? it.suggested_price ?? it.price ?? it.median_price;
-        if (name && v != null && isFinite(+v)) map[name] = +v;
-      }
-    } else {
-      for (const [name, v] of Object.entries(j.items || j)) {
-        let x = v;
-        if (typeof v === 'object' && v) x = v[field] ?? v.price ?? v.min_price ?? v.suggested_price ?? (v.steam && (v.steam.last_7d ?? v.steam.last_24h));
-        if (x != null && isFinite(+x)) map[name] = +x;
-      }
-    }
-  } else {
-    for (const line of text.split(/\r?\n/)) {
-      const m = line.match(/^\s*"?(.+?)"?\s*[;,\t]\s*"?([\d.,]+)"?\s*$/);
-      if (m) { const v = +m[2].replace(',', '.'); if (isFinite(v)) map[m[1]] = v; }
-    }
-  }
+    if (Array.isArray(j)) for (const it of j) { const name = it.market_hash_name || it.name; let v = it[field] ?? it.min_price ?? it.suggested_price ?? it.price; if (name && v != null && isFinite(+v)) map[name] = +v; }
+    else for (const [name, v] of Object.entries(j.items || j)) { let x = v; if (Array.isArray(v)) x = v[0]; else if (v && typeof v === 'object') x = v[field] ?? v.price ?? v.min_price ?? v.suggested_price; if (x != null && isFinite(+x)) map[name] = +x; }
+  } else for (const line of text.split(/\r?\n/)) { const m = line.match(/^\s*"?(.+?)"?\s*[;,\t]\s*"?([\d.,]+)"?\s*$/); if (m) { const v = +m[2].replace(',', '.'); if (isFinite(v)) map[m[1]] = v; } }
   return map;
 }
 
-/* ---------- État du calculateur ---------- */
-const S = Object.assign({ rar: 3, st: false, fee: 0, formula: 'new', lines: [] }, store.get('calc', {}));
-let pick = null; // skin choisi dans la recherche
-const saveCalc = () => store.set('calc', S);
-
+/* ---------- Aides d'affichage ---------- */
+const rc = r => FF.RARITY_COLOR[r];
+function art(s, h, extra) {
+  const label = esc(s.w || s.n.split('|')[0].replace('★', '').trim());
+  const img = s.img ? '<img loading="lazy" alt="" src="' + esc(s.img) + '" onerror="this.outerHTML=\'<div class=ph>' + label.replace(/'/g, '') + '</div>\'">' : '<div class="ph">' + label + '</div>';
+  return '<div class="art' + (extra ? ' ' + extra : '') + '" style="--rc:' + rc(s.r) + (h ? ';height:' + h + 'px' : '') + '">' + img + '</div>';
+}
+function splitName(s) { const p = s.n.split(' | '); return { w: p[0], f: p[1] || (s.v ? 'Vanilla' : '') }; }
+const wearTag = w => w < 0 ? '<span class="wear wv">—</span>' : '<span class="wear w' + w + '" title="' + FF.WEAR_FR[w] + '">' + FF.WEAR_SHORT[w] + '</span>';
 function collName(c) { return D.collections[c] ? D.collections[c].n.replace(/^The /, '').replace(/ Collection$/, '') : '—'; }
-function skinLabel(si) { const s = D.skins[si]; return '<span class="rar-dot" style="background:' + FF.RARITY_COLOR[s.r] + '"></span>'; }
-function thumb(s) { return s.img ? '<img class="thumb" loading="lazy" alt="" src="' + esc(s.img) + '" onerror="this.remove()">' : ''; }
-
-function fillRaritySelect(sel, val) {
-  sel.innerHTML = FF.RARITY_FR.slice(0, 6).map((n, i) => '<option value="' + i + '"' + (i === val ? ' selected' : '') + '>' + n + ' → ' + (i === 5 ? 'couteau / gants (×5)' : FF.RARITY_FR[i + 1]) + '</option>').join('');
+function wearsOf(s) { return s.v ? [-1] : [0, 1, 2, 3, 4].filter(w => FF.WEAR_BOUNDS[w + 1] > s.mn && FF.WEAR_BOUNDS[w] < s.mx); }
+const minCache = new Map();
+function minPrice(si) { if (minCache.has(si)) return minCache.get(si); let m = null; for (const w of wearsOf(D.skins[si])) { const p = priceOf(si, w, false); if (p != null && (m == null || p < m)) m = p; } minCache.set(si, m); return m; }
+function var7(si) { const s = D.skins[si]; let a = 0, b = 0; for (const w of wearsOf(s)) { const r = autoRow(FF.marketName(s, w, false)); if (r && r[0] && r[2]) { a += r[0]; b += r[2]; } } return b ? a / b - 1 : null; }
+function rarityButtons(box, val, max) {
+  box.innerHTML = FF.RARITY_FR.slice(0, max).map((n, i) => '<button type="button" data-r="' + i + '" style="--rc:' + rc(i) + '" aria-pressed="' + (i === val) + '"><i style="background:' + rc(i) + '"></i>' + n + '</button>').join('');
 }
+function priceRefresh() { minCache.clear(); updatePriceUI(); renderCalc(); if (!$('#view-skins').hidden) renderSkins(); if (!$('#view-collections').hidden) renderCols(); }
 
-/* Recherche de skins (réutilisée par l'onglet Prix) */
-function makePicker(input, list, filter, onPick) {
-  let items = [], active = -1;
-  const render = () => {
-    const q = input.value.trim().toLowerCase();
-    if (!q && document.activeElement !== input) { list.hidden = true; return; }
-    const words = q.split(/\s+/).filter(Boolean);
-    items = [];
-    for (let i = 0; i < D.skins.length && items.length < 60; i++) {
-      const s = D.skins[i];
-      const f = filter(i); if (f === false) continue;
-      const hay = (s.n + ' ' + (s.c[0] != null ? D.collections[s.c[0]].n : '')).toLowerCase();
-      if (words.every(w => hay.includes(w))) items.push({ i, pb: f === true ? null : f });
-    }
-    active = items.findIndex(x => !x.pb);
-    list.innerHTML = items.length ? items.map((x, k) => {
-      const s = D.skins[x.i];
-      return '<li role="option" data-k="' + k + '" class="' + (x.pb ? 'dis' : '') + '" aria-selected="' + (k === active) + '" title="' + esc(x.pb || '') + '">' + skinLabel(x.i) + thumb(s) + '<span>' + esc(s.n) + '</span><span class="col">' + esc(s.c[0] != null ? collName(s.c[0]) : FF.RARITY_FR[s.r]) + (x.pb ? '<br>' + esc(x.pb) : '') + '</span></li>';
-    }).join('') : '<li class="dis">Aucun skin trouvé</li>';
-    list.hidden = false; input.setAttribute('aria-expanded', 'true');
-  };
-  const choose = k => { const x = items[k]; if (!x || x.pb) return; list.hidden = true; input.setAttribute('aria-expanded', 'false'); onPick(x.i); };
-  input.addEventListener('input', render);
-  input.addEventListener('focus', render);
-  input.addEventListener('blur', () => setTimeout(() => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); }, 150));
-  input.addEventListener('keydown', e => {
-    if (list.hidden) return;
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      const d = e.key === 'ArrowDown' ? 1 : -1;
-      for (let k = active + d; k >= 0 && k < items.length; k += d) if (!items[k].pb) { active = k; break; }
-      $$('#' + list.id + ' li').forEach((li, k) => li.setAttribute('aria-selected', k === active));
-      const el = list.querySelector('[aria-selected="true"]'); if (el) el.scrollIntoView({ block: 'nearest' });
-    } else if (e.key === 'Enter') { e.preventDefault(); choose(active); }
-    else if (e.key === 'Escape') list.hidden = true;
-  });
-  list.addEventListener('mousedown', e => { const li = e.target.closest('li[data-k]'); if (li) { e.preventDefault(); choose(+li.dataset.k); } });
-  return { render };
-}
+/* ---------- Trade up ---------- */
+const S = Object.assign({ rar: 3, st: false, fee: 0, formula: 'new', slots: [] }, store.get('calc2', {}));
+const saveCalc = () => store.set('calc2', S);
+let pick = null;
+const N = () => FF.inputsNeeded(S.rar);
+const slotPrice = sl => sl.price != null ? sl.price : priceOf(sl.s, FF.wearOf(sl.f), S.st);
 
+function defaultFloat(s) { const t = Math.max(s.mn, Math.min(s.mx, 0.2)); return +(t >= s.mx ? s.mn + (s.mx - s.mn) / 2 : t).toFixed(4); }
 function setPick(si) {
-  pick = si;
-  const s = D.skins[si];
-  $('#pickInput').value = s.n;
-  const mid = +(s.mn + Math.min(0.5, (s.mx - s.mn)) * 0.3).toFixed(4);
-  const f = $('#addFloat'); f.min = s.mn; f.max = s.mx; f.step = 0.0001;
-  if (!(+f.value >= s.mn && +f.value <= s.mx)) f.value = Math.max(s.mn, Math.min(s.mx, 0.15 <= s.mx ? Math.max(s.mn, 0.2) : mid)).toFixed(4);
+  pick = si; const s = D.skins[si];
+  const f = $('#addFloat'); f.min = s.mn; f.max = s.mx;
+  if (!(+f.value >= s.mn && +f.value <= s.mx)) f.value = defaultFloat(s);
+  $$('#pickRes .mini').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.pick === si)));
   updateAddInfo();
 }
 function updateAddInfo() {
-  if (pick == null) return;
-  const s = D.skins[pick], f = +$('#addFloat').value, w = FF.wearOf(f);
-  const p = priceOf(pick, w, S.st);
-  $('#addPrice').placeholder = p != null ? String(p) : 'inconnu';
-  $('#addInfo').innerHTML = esc(s.n) + ' · ' + esc(collName(s.c[0])) + ' · plage <span class="mono">' + s.mn + ' – ' + s.mx + '</span> · ' + (w >= 0 ? '<span class="wear">' + FF.WEAR_SHORT[w] + '</span> ' : '') + 'prix base : ' + money(p);
+  if (pick == null) { $('#addInfo').textContent = 'Choisissez un skin ci-dessous.'; return; }
+  const s = D.skins[pick], f = +$('#addFloat').value, w = FF.wearOf(f), p = priceOf(pick, w, S.st);
+  $('#addPrice').placeholder = p != null ? String(p) : '?';
+  $('#addInfo').innerHTML = '<b>' + esc(s.n) + '</b> · ' + esc(collName(s.c[0])) + ' · plage <span class="mono">' + s.mn + '–' + s.mx + '</span> · ' + wearTag(w) + ' ' + money(p);
 }
-function addLine(fill) {
-  if (pick == null) { $('#addInfo').textContent = "Choisissez d'abord un skin dans la recherche."; return; }
-  const s = D.skins[pick], N = FF.inputsNeeded(S.rar);
-  const used = S.lines.reduce((a, l) => a + (+l.q || 0), 0);
-  let q = fill ? N - used : Math.max(1, Math.floor(+$('#addQty').value || 1));
-  if (q <= 0) { $('#addInfo').textContent = 'Le contrat est déjà complet (' + N + ' entrées).'; return; }
-  let f = +$('#addFloat').value; if (!(f >= s.mn && f <= s.mx)) f = s.mn;
-  const pr = $('#addPrice').value;
-  const same = S.lines.find(l => l.s === pick && +l.f === f && (l.price ?? '') === (pr === '' ? '' : +pr));
-  if (same) same.q += q; else S.lines.push({ s: pick, f, q, price: pr === '' ? null : +pr });
+function renderPicker() {
+  const q = $('#pickQ').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const list = [];
+  for (let i = 0; i < D.skins.length; i++) {
+    const s = D.skins[i]; if (s.r !== S.rar || (S.st && !s.st)) continue;
+    if (q.length) { const hay = (s.n + ' ' + (s.c[0] != null ? D.collections[s.c[0]].n : '')).toLowerCase(); if (!q.every(w => hay.includes(w))) continue; }
+    list.push(i);
+  }
+  list.sort((a, b) => !!FF.inputProblem(D, a, S.rar, S.st) - !!FF.inputProblem(D, b, S.rar, S.st) || D.skins[a].n.localeCompare(D.skins[b].n));
+  $('#pickCount').textContent = list.length + ' skins ' + FF.RARITY_FR[S.rar].toLowerCase();
+  $('#pickRes').innerHTML = list.slice(0, 120).map(i => {
+    const s = D.skins[i], pb = FF.inputProblem(D, i, S.rar, S.st), nm = splitName(s), p = minPrice(i);
+    return '<button type="button" class="mini' + (pb ? ' dis' : '') + '" data-pick="' + i + '" aria-pressed="' + (i === pick) + '" title="' + esc(pb || collName(s.c[0])) + '"' + (pb ? ' aria-disabled="true"' : '') + '>' + art(s) + '<div class="t">' + esc(nm.f) + '<small>' + esc(nm.w) + ' · ' + esc(pb ? 'non utilisable' : collName(s.c[0])) + '</small></div>' + (p != null ? '<div class="small mono muted">dès ' + money(p) + '</div>' : '') + '</button>';
+  }).join('') || '<div class="note">Aucun skin trouvé.</div>';
+}
+function addPicked(fill) {
+  if (pick == null) { $('#addInfo').textContent = "Choisissez d'abord un skin."; return; }
+  const s = D.skins[pick]; let f = +$('#addFloat').value; if (!(f >= s.mn && f <= s.mx)) f = defaultFloat(s);
+  const pr = $('#addPrice').value === '' ? null : +$('#addPrice').value;
+  const n = fill ? N() - S.slots.length : 1;
+  if (n <= 0) { $('#addInfo').textContent = 'Le contrat est complet (' + N() + ' entrées).'; return; }
+  for (let k = 0; k < n; k++) S.slots.push({ s: pick, f, price: pr });
   renderCalc();
 }
-
-function linePrice(l) { return l.price != null ? l.price : priceOf(l.s, FF.wearOf(l.f), S.st); }
-
-function renderLines() {
-  const N = FF.inputsNeeded(S.rar);
-  const used = S.lines.reduce((a, l) => a + (+l.q || 0), 0);
-  const c = $('#counter'); c.textContent = used + '/' + N; c.className = 'counter ' + (used === N ? 'ok' : 'ko');
-  $('#lines').innerHTML = S.lines.length ? S.lines.map((l, i) => {
-    const s = D.skins[l.s], w = FF.wearOf(l.f), base = priceOf(l.s, w, S.st);
-    const pb = FF.inputProblem(D, l.s, S.rar, S.st);
-    return '<tr' + (pb ? ' title="' + esc(pb) + '" style="opacity:.55"' : '') + '><td><div class="skinname">' + skinLabel(l.s) + '<div>' + esc(s.n) + '<small>' + esc(collName(s.c[0])) + (pb ? ' · ' + esc(pb) : '') + '</small></div></div></td>' +
-      '<td class="num"><input type="number" data-i="' + i + '" data-k="f" step="0.0001" min="' + s.mn + '" max="' + s.mx + '" value="' + l.f + '" aria-label="Float"></td>' +
-      '<td><span class="wear">' + FF.WEAR_SHORT[w] + '</span></td>' +
-      '<td class="num"><input class="q" type="number" data-i="' + i + '" data-k="q" min="0" max="10" value="' + l.q + '" aria-label="Quantité"></td>' +
-      '<td class="num"><input type="number" data-i="' + i + '" data-k="price" step="0.01" min="0" value="' + (l.price ?? '') + '" placeholder="' + (base ?? '?') + '" aria-label="Prix unitaire"></td>' +
-      '<td><button class="btn small ghost" data-del="' + i + '" type="button" aria-label="Retirer">✕</button></td></tr>';
-  }).join('') : '<tr><td colspan="6" class="note">Aucune entrée. Cherchez un skin ci-dessus, ou chargez un exemple.</td></tr>';
+function renderSlots() {
+  const n = N();
+  $('#counter').textContent = S.slots.length + '/' + n;
+  $('#counter').className = S.slots.length === n ? 'pos' : 'muted';
+  let h = '';
+  S.slots.forEach((sl, i) => {
+    const s = D.skins[sl.s], w = FF.wearOf(sl.f), nm = splitName(s), pb = FF.inputProblem(D, sl.s, S.rar, S.st), base = priceOf(sl.s, w, S.st);
+    h += '<div class="slot' + (pb ? ' bad' : '') + '" title="' + esc(pb || '') + '"><button class="x" type="button" data-del="' + i + '" aria-label="Retirer">✕</button>' + (S.slots.length < n ? '<button class="dup" type="button" data-dup="' + i + '" aria-label="Dupliquer" title="Dupliquer">+</button>' : '') + art(s) +
+      '<div class="nm">' + esc(nm.f) + '<small>' + esc(nm.w) + '</small></div>' +
+      '<div class="kv"><span>Float</span><input type="number" data-i="' + i + '" data-k="f" step="0.0001" min="' + s.mn + '" max="' + s.mx + '" value="' + sl.f + '" aria-label="Float"><span>' + wearTag(w) + '</span><input type="number" data-i="' + i + '" data-k="price" step="0.01" min="0" value="' + (sl.price ?? '') + '" placeholder="' + (base ?? '?') + '" aria-label="Prix"></div></div>';
+  });
+  for (let k = S.slots.length; k < n; k++) h += '<button type="button" class="slot empty" data-addslot>+<br>Ajouter</button>';
+  $('#slots').innerHTML = h;
 }
-
 function renderResult() {
-  const opts = { rar: S.rar, st: S.st, formula: S.formula, fee: S.fee / 100, priceOf };
-  const lines = S.lines.map(l => ({ s: l.s, f: l.f, q: l.q, price: linePrice(l) }));
-  const r = FF.evaluate(D, lines, opts);
-  const st = r.stats;
-  $('#msgs').innerHTML = (r.errors.length ? '<div class="errors">' + r.errors.map(esc).join('<br>') + '</div>' : '') + (r.warnings.length ? '<div class="warns" style="margin-top:6px">' + r.warnings.map(esc).join('<br>') + '</div>' : '');
-  const ok = r.count > 0 && r.outcomes.length;
-  const v = [];
-  if (ok) {
-    if (st.worst > st.cost) v.push('<span class="pill good">100 % gagnant</span>');
-    else if (st.worst >= st.cost * 0.9) v.push('<span class="pill good">Remboursé ≥ 90 %</span>');
-    v.push(st.profit >= 0 ? '<span class="pill good">Valeur espérée positive</span>' : '<span class="pill bad">Valeur espérée négative</span>');
-    if (r.errors.length) v.push('<span class="pill warn">Contrat incomplet</span>');
+  const lines = S.slots.map(sl => ({ s: sl.s, f: sl.f, q: 1, price: slotPrice(sl) }));
+  const r = FF.evaluate(D, lines, { rar: S.rar, st: S.st, formula: S.formula, fee: S.fee / 100, priceOf });
+  const st = r.stats, ok = r.count > 0 && r.outcomes.length;
+  $('#msgs').innerHTML = (r.errors.length && S.slots.length ? '<div class="errors">' + r.errors.map(esc).join('<br>') + '</div>' : '') + (r.warnings.length ? '<div class="warns">' + r.warnings.map(esc).join('<br>') + '</div>' : '');
+  if (!ok) {
+    $('#sumCard').innerHTML = '<h2>Résumé</h2><div class="note">Ajoutez des skins pour voir les issues, la rentabilité et les probabilités.</div>';
+    $('#outs').innerHTML = ''; $('#chartCard').hidden = true; $('#floatHelp').hidden = true; $('#outsNote').textContent = ''; return;
   }
-  $('#verdict').innerHTML = v.join('');
-  const tile = (label, val, sub, cls) => '<div class="tile"><span>' + label + '</span><b class="' + (cls || '') + '">' + val + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>';
-  const sign = x => x > 0 ? 'pos' : x < 0 ? 'neg' : '';
-  $('#tiles').innerHTML = !ok ? '<div class="note" style="grid-column:1/-1">Ajoutez des entrées pour voir les issues possibles.</div>' : [
-    tile('Coût total', money(st.cost), r.count + ' entrées'),
-    tile('Valeur espérée', money(st.ev), 'nette de frais'),
-    tile('Gain espéré', (st.profit > 0 ? '+' : '') + money(st.profit), 'ROI ' + (st.roi > 0 ? '+' : '') + pct(st.roi), sign(st.profit)),
-    tile('Chance de profit', pct(st.pProfit), 'perte > 50 % : ' + pct(st.pHalfLoss)),
-    tile('Meilleure issue', money(st.best), '×' + st.bestRatio.toFixed(2) + ' la mise', sign(st.best - st.cost)),
-    tile('Pire issue', money(st.worst), '×' + st.worstRatio.toFixed(2) + ' la mise', sign(st.worst - st.cost)),
-    tile('Médiane', money(st.median), 'écart-type ' + money(st.std), sign(st.median - st.cost)),
-    tile('Float moyen', r.avgRaw.toFixed(5), 'normalisé ' + r.avgNorm.toFixed(5))
-  ].join('');
-  // Graphique : barres par issue (net), ligne de coût
+  const badges = [];
+  if (st.worst > st.cost) badges.push('<span class="pill good">100 % gagnant</span>');
+  else if (st.worst >= st.cost * 0.9) badges.push('<span class="pill good">Remboursé ≥ 90 %</span>');
+  badges.push(st.profit >= 0 ? '<span class="pill good">Rentable en moyenne</span>' : '<span class="pill bad">Perdant en moyenne</span>');
+  if (r.count !== r.N) badges.push('<span class="pill warn">' + r.count + '/' + r.N + ' entrées</span>');
+  $('#sumCard').innerHTML = '<div class="row between"><h2>Résumé</h2><div class="row" style="gap:6px">' + badges.join('') + '</div></div>' +
+    '<div class="row between" style="align-items:end"><div class="big"><span class="eyebrow">Gain espéré</span><b class="' + sgn(st.profit) + '">' + plus(st.profit) + '</b></div><div class="big" style="text-align:right"><span class="eyebrow">ROI</span><b class="' + sgn(st.roi) + '" style="font-size:22px">' + (st.roi > 0 ? '+' : '') + pct(st.roi) + '</b></div></div>' +
+    '<div class="stack" style="gap:6px"><div class="row between small"><span>Chance de profit</span><b class="num">' + pct(st.pProfit) + '</b></div><div class="meter"><i style="width:' + (st.pProfit * 100).toFixed(1) + '%"></i></div></div>' +
+    '<div class="kpis">' +
+    '<div><span>Coût total</span><b>' + money(st.cost) + '</b><small>' + r.count + ' entrées</small></div>' +
+    '<div><span>Valeur espérée</span><b>' + money(st.ev) + '</b><small>après frais</small></div>' +
+    '<div><span>Meilleure issue</span><b class="' + sgn(st.best - st.cost) + '">' + money(st.best) + '</b><small>×' + st.bestRatio.toFixed(2) + ' la mise</small></div>' +
+    '<div><span>Pire issue</span><b class="' + sgn(st.worst - st.cost) + '">' + money(st.worst) + '</b><small>×' + st.worstRatio.toFixed(2) + ' la mise</small></div>' +
+    '<div><span>Médiane</span><b class="' + sgn(st.median - st.cost) + '">' + money(st.median) + '</b><small>écart-type ' + money(st.std) + '</small></div>' +
+    '<div><span>Perte &gt; 50 %</span><b>' + pct(st.pHalfLoss) + '</b><small>' + st.n + ' issues</small></div>' +
+    '<div><span>Float moyen</span><b class="mono" style="font-size:14px">' + r.avgRaw.toFixed(5) + '</b><small>brut</small></div>' +
+    '<div><span>Float normalisé</span><b class="mono" style="font-size:14px">' + r.avgNorm.toFixed(5) + '</b><small>utilisé par le jeu</small></div>' +
+    '</div>';
   const outs = [...r.outcomes].sort((a, b) => b.net - a.net);
+  $('#outsNote').textContent = outs.length + ' issues · triées par valeur';
   $('#outs').innerHTML = outs.map(o => {
-    const s = D.skins[o.s], g = o.net - st.cost;
-    return '<tr><td><div class="skinname">' + skinLabel(o.s) + thumb(s) + '<div>' + esc(s.n) + '<small>' + esc(s.r === 6 ? 'pool de caisse' : collName(s.c[0])) + '</small></div></div></td>' +
-      '<td class="num">' + pct(o.p, 2) + '</td><td class="num">' + flt(o.f) + '</td><td>' + (o.w >= 0 ? '<span class="wear">' + FF.WEAR_SHORT[o.w] + '</span>' : '<span class="muted small">vanilla</span>') + '</td>' +
-      '<td class="num">' + money(o.price) + '</td><td class="num">' + money(o.net) + '</td><td class="num ' + sign(g) + '">' + (g > 0 ? '+' : '') + money(g) + '</td></tr>';
+    const s = D.skins[o.s], nm = splitName(s), g = o.net - st.cost;
+    return '<button type="button" class="out" data-skin="' + o.s + '"><div style="position:relative">' + art(s, 100) + '<span class="chance">' + pct(o.p, o.p < 0.01 ? 2 : 1) + '</span></div>' +
+      '<div><div class="small muted">' + esc(nm.w) + '</div><div style="font-weight:600">' + esc(nm.f) + '</div></div>' +
+      '<div class="meta">' + wearTag(o.w) + '<span class="mono">' + (o.f == null ? 'vanilla' : flt(o.f)) + '</span></div>' +
+      '<div class="val"><b>' + money(o.price) + '</b><span class="' + sgn(g) + '">' + plus(g) + '</span></div></button>';
   }).join('');
-  $('#chartBox').innerHTML = ok ? chart(outs, st) : '';
-  // Aide au float : moyenne normalisée nécessaire pour améliorer l'usure de chaque issue
-  if (ok && S.formula === 'new') {
+  $('#chartCard').hidden = false; $('#chartCard').innerHTML = chart(outs, st);
+  if (S.formula === 'new') {
     const tips = [];
     for (const o of outs.slice(0, 8)) {
       if (o.w <= 0) continue;
-      const t = FF.wearTargets(D, o.s).filter(x => x.w < o.w).pop();
-      if (!t) continue;
+      const t = FF.wearTargets(D, o.s).filter(x => x.w < o.w).pop(); if (!t) continue;
       const better = priceOf(o.s, t.w, S.st);
-      tips.push('<b>' + esc(D.skins[o.s].n) + '</b> passe en <span class="wear">' + FF.WEAR_SHORT[t.w] + '</span> si la moyenne normalisée descend sous <span class="mono">' + t.maxAvg.toFixed(5) + '</span> (actuelle ' + r.avgNorm.toFixed(5) + ')' + (better != null ? ', prix ' + money(better) : ''));
+      tips.push('<div>' + wearTag(o.w) + ' → ' + wearTag(t.w) + ' <b>' + esc(D.skins[o.s].n) + '</b> si le float normalisé moyen descend sous <span class="mono">' + t.maxAvg.toFixed(5) + '</span>' + (better != null ? ' (vaudrait ' + money(better) + ')' : '') + '</div>');
     }
-    $('#floatHelp').innerHTML = tips.length ? '<b>Pistes pour améliorer l\'usure</b><br>' + tips.join('<br>') : '';
-  } else $('#floatHelp').innerHTML = '';
-  return r;
+    $('#floatHelp').hidden = !tips.length;
+    $('#floatHelp').innerHTML = '<h2>Améliorer l\'usure des issues</h2><div class="note">Moyenne actuelle : <span class="mono">' + r.avgNorm.toFixed(5) + '</span></div>' + tips.join('');
+  } else $('#floatHelp').hidden = true;
 }
-
 function chart(outs, st) {
-  const W = 640, rowH = 22, padL = 8, padR = 8, top = 20, maxN = 24;
-  const list = outs.slice(0, maxN);
-  const H = top + list.length * rowH + 22;
-  const maxV = Math.max(st.cost, ...list.map(o => o.net)) * 1.08 || 1;
-  const x0 = 250, xw = W - x0 - padR - 70;
-  const sx = v => x0 + (v / maxV) * xw;
-  let svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Valeur nette de chaque issue comparée au coût">';
-  svg += '<text x="' + padL + '" y="13" font-size="11" fill="var(--muted)" font-family="var(--f-body)">Net de chaque issue (barre) et coût du contrat (ligne)</text>';
+  const W = 760, rowH = 24, top = 26, maxN = 20, list = outs.slice(0, maxN), H = top + list.length * rowH + 24;
+  const maxV = Math.max(st.cost, ...list.map(o => o.net)) * 1.08 || 1, x0 = 260, xw = W - x0 - 70, sx = v => x0 + (v / maxV) * xw;
+  let g = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Valeur de chaque issue comparée au coût"><text x="0" y="14" font-size="12" font-weight="600" fill="var(--fg-2)" font-family="var(--f-body)">Valeur nette par issue · ligne pointillée = coût du contrat</text>';
   list.forEach((o, i) => {
-    const y = top + i * rowH, s = D.skins[o.s];
-    const col = o.net > st.cost ? 'var(--good)' : o.net >= st.cost * 0.9 ? 'var(--warn)' : 'var(--bad)';
-    const name = s.n.length > 34 ? s.n.slice(0, 33) + '…' : s.n;
-    svg += '<text x="' + padL + '" y="' + (y + 15) + '" font-size="11.5" fill="var(--fg)" font-family="var(--f-body)">' + esc(name) + '</text>';
-    svg += '<rect x="' + x0 + '" y="' + (y + 4) + '" width="' + Math.max(1, sx(o.net) - x0) + '" height="' + (rowH - 8) + '" rx="2" fill="' + col + '" fill-opacity=".75"></rect>';
-    svg += '<text x="' + (Math.max(sx(o.net), sx(st.cost)) + 6) + '" y="' + (y + 15) + '" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">' + pct(o.p, 1) + '</text>';
+    const y = top + i * rowH, s = D.skins[o.s], col = o.net > st.cost ? 'var(--good)' : o.net >= st.cost * 0.9 ? 'var(--warn)' : 'var(--bad)';
+    const name = s.n.length > 36 ? s.n.slice(0, 35) + '…' : s.n;
+    g += '<text x="0" y="' + (y + 16) + '" font-size="12" fill="var(--fg-2)" font-family="var(--f-body)">' + esc(name) + '</text>';
+    g += '<rect x="' + x0 + '" y="' + (y + 5) + '" width="' + Math.max(2, sx(o.net) - x0) + '" height="' + (rowH - 10) + '" rx="3" fill="' + col + '" fill-opacity=".8"></rect>';
+    g += '<text x="' + (Math.max(sx(o.net), sx(st.cost)) + 6) + '" y="' + (y + 16) + '" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">' + pct(o.p, 1) + '</text>';
   });
   const cx = sx(st.cost);
-  svg += '<line x1="' + cx + '" x2="' + cx + '" y1="' + (top - 2) + '" y2="' + (top + list.length * rowH) + '" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"></line>';
-  svg += '<text x="' + cx + '" y="' + (H - 6) + '" font-size="11" text-anchor="middle" fill="var(--accent)" font-family="var(--f-mono)">coût ' + esc(money(st.cost)) + '</text>';
-  svg += '</svg>';
-  if (outs.length > maxN) svg += '<div class="note">' + (outs.length - maxN) + ' issues de plus dans le tableau.</div>';
-  return svg;
+  g += '<line x1="' + cx + '" x2="' + cx + '" y1="' + (top - 2) + '" y2="' + (top + list.length * rowH) + '" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="4 3"></line>';
+  g += '<text x="' + Math.min(W - 60, cx) + '" y="' + (H - 6) + '" font-size="11" text-anchor="middle" fill="var(--blue)" font-family="var(--f-mono)">coût ' + esc(money(st.cost)) + '</text></svg>';
+  return g + (outs.length > maxN ? '<div class="note">' + (outs.length - maxN) + ' issues de plus ci-dessus.</div>' : '');
 }
-
 function renderCalc() {
-  $('#rar').value = S.rar;
+  if (!D) return;
+  $$('#rarBtns button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.r === S.rar)));
   $$('#stSeg button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.st === +S.st)));
-  $('#fee').value = S.fee; $('#formula').value = S.formula;
-  $('#addQty').max = FF.inputsNeeded(S.rar);
-  renderLines(); renderResult(); updateAddInfo(); saveCalc();
+  $('#fee').value = String(S.fee); if ($('#fee').value !== String(S.fee)) { $('#fee').insertAdjacentHTML('beforeend', '<option value="' + S.fee + '">' + S.fee + ' %</option>'); $('#fee').value = String(S.fee); }
+  $('#formula').value = S.formula;
+  renderSlots(); renderResult(); renderPicker(); updateAddInfo(); saveCalc();
 }
-
 function loadSample() {
-  // Exemple : Restreint (Kilowatt) 6 + Restreint (Revolution) 4, floats FT
-  const pickCol = name => D.collections.findIndex(c => c.n.includes(name));
-  const ks = [pickCol('Kilowatt'), pickCol('Revolution')].filter(c => c >= 0);
-  S.rar = 3; S.st = false; S.lines = [];
-  const qs = [6, 4];
-  ks.forEach((c, k) => { const si = D.outs[c][3][0]; if (si != null) S.lines.push({ s: si, f: Math.max(D.skins[si].mn, 0.16), q: qs[k], price: null }); });
-  if (!S.lines.length) { const si = D.skins.findIndex((s, i) => !FF.inputProblem(D, i, 3, false)); S.lines.push({ s: si, f: Math.max(D.skins[si].mn, 0.16), q: 10, price: null }); }
+  const col = name => D.collections.findIndex(c => c.n.includes(name));
+  S.rar = 3; S.st = false; S.slots = [];
+  [[col('Kilowatt'), 6], [col('Revolution'), 4]].forEach(([c, q]) => { if (c < 0) return; const si = D.outs[c][3][0]; if (si != null) for (let k = 0; k < q; k++) S.slots.push({ s: si, f: Math.max(D.skins[si].mn, 0.16), price: null }); });
   renderCalc();
 }
 
 /* ---------- Générateur ---------- */
 const TAGS = [
-  { id: 'win', label: '100 % gagnant', test: (s) => s.worst > s.cost },
-  { id: 'refund', label: () => 'Remboursé ≥ ' + (+$('#gRefund').value || 0) + ' %', test: (s) => s.worst >= s.cost * (+$('#gRefund').value || 0) / 100 },
-  { id: 'ev', label: 'Valeur espérée positive', test: (s) => s.profit > 0 },
-  { id: 'roi', label: () => 'ROI ≥ ' + (+$('#gRoi').value || 0) + ' %', test: (s) => s.roi >= (+$('#gRoi').value || 0) / 100 },
-  { id: 'p50', label: 'Profit ≥ 50 % des cas', test: (s) => s.pProfit >= 0.5 },
-  { id: 'p75', label: 'Profit ≥ 75 % des cas', test: (s) => s.pProfit >= 0.75 },
-  { id: 'jack', label: () => 'Jackpot ×' + (+$('#gJack').value || 1), test: (s) => s.best >= s.cost * (+$('#gJack').value || 1) },
-  { id: 'nohalf', label: 'Jamais −50 %', test: (s) => s.pHalfLoss === 0 },
-  { id: 'mono', label: 'Une seule collection', test: (s, r) => r.cols === 1 },
-  { id: 'priced', label: 'Toutes les issues ont un prix', test: (s) => s.unknown === 0 },
-  { id: 'budget', label: 'Dans le budget', test: (s) => { const b = +$('#gBudget').value; return !b || s.cost <= b; } }
+  { id: 'win', label: () => '100 % gagnant', test: s => s.worst > s.cost },
+  { id: 'refund', label: () => 'Remboursé ≥ ' + (+$('#gRefund').value || 0) + ' %', test: s => s.worst >= s.cost * (+$('#gRefund').value || 0) / 100 },
+  { id: 'ev', label: () => 'Rentable en moyenne', test: s => s.profit > 0 },
+  { id: 'roi', label: () => 'ROI ≥ ' + (+$('#gRoi').value || 0) + ' %', test: s => s.roi >= (+$('#gRoi').value || 0) / 100 },
+  { id: 'p50', label: () => 'Profit ≥ 50 % des cas', test: s => s.pProfit >= 0.5 },
+  { id: 'p75', label: () => 'Profit ≥ 75 % des cas', test: s => s.pProfit >= 0.75 },
+  { id: 'jack', label: () => 'Jackpot ×' + (+$('#gJack').value || 1), test: s => s.best >= s.cost * (+$('#gJack').value || 1) },
+  { id: 'nohalf', label: () => 'Jamais −50 %', test: s => s.pHalfLoss === 0 },
+  { id: 'mono', label: () => 'Une seule collection', test: (s, r) => r.cols === 1 },
+  { id: 'priced', label: () => 'Toutes les issues ont un prix', test: s => s.unknown === 0 },
+  { id: 'budget', label: () => 'Dans le budget', test: s => { const b = +$('#gBudget').value; return !b || s.cost <= b; } }
 ];
-const G = Object.assign({ rar: 3, st: false, tags: ['ev', 'priced', 'budget'], wears: [1, 1, 1, 1, 1] }, store.get('gen', {}));
-function renderTags() {
-  $('#gTags').innerHTML = TAGS.map(t => '<button type="button" class="tag" data-tag="' + t.id + '" aria-pressed="' + G.tags.includes(t.id) + '">' + esc(typeof t.label === 'function' ? t.label() : t.label) + '</button>').join('');
-  $('#gWears').innerHTML = FF.WEAR_SHORT.map((w, i) => '<button type="button" class="tag" data-wear="' + i + '" aria-pressed="' + !!G.wears[i] + '" title="' + FF.WEAR_FR[i] + '">' + w + '</button>').join('');
+const G = Object.assign({ rar: 3, st: false, tags: ['ev', 'priced', 'budget'], wears: [1, 1, 1, 1, 1] }, store.get('gen2', {}));
+function renderGenControls() {
+  $$('#gRarBtns button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.r === G.rar)));
   $$('#gStSeg button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.st === +G.st)));
+  $('#gTags').innerHTML = TAGS.map(t => '<button type="button" class="tag" data-tag="' + t.id + '" aria-pressed="' + G.tags.includes(t.id) + '">' + esc(t.label()) + '</button>').join('');
+  $('#gWears').innerHTML = FF.WEAR_SHORT.map((w, i) => '<button type="button" class="tag" data-wear="' + i + '" aria-pressed="' + !!G.wears[i] + '" title="' + FF.WEAR_FR[i] + '">' + w + '</button>').join('');
+  store.set('gen2', G);
 }
 let genRun = 0, genResults = [];
 function runGen() {
   const run = ++genRun;
-  G.rar = +$('#gRar').value; store.set('gen', G);
   const cfg = { rar: G.rar, st: G.st, formula: S.formula, fee: (+$('#gFee').value || 0) / 100, priceOf, pos: (+$('#gPos').value) / 100, maxCols: +$('#gCols').value, wears: G.wears };
-  const active = TAGS.filter(t => G.tags.includes(t.id));
-  const sortKey = $('#gSort').value;
+  const active = TAGS.filter(t => G.tags.includes(t.id)), sortKey = $('#gSort').value;
   const keyOf = r => sortKey === 'cost' ? -r.stats.cost : r.stats[sortKey];
-  const it = FF.generate(D, cfg);
-  const kept = []; let seen = 0, pass = 0;
-  const t0 = performance.now();
-  $('#gRun').textContent = 'Recherche…';
+  const it = FF.generate(D, cfg); const kept = []; let seen = 0, pass = 0; const t0 = performance.now();
+  $('#gRun').textContent = 'Recherche en cours…';
   const step = () => {
     if (run !== genRun) return;
-    const until = performance.now() + 30;
-    let n, last = null;
+    const until = performance.now() + 30; let n, last = null;
     while (performance.now() < until && !(n = it.next()).done) {
-      seen++; last = n.value;
-      const r = n.value.r;
-      if (active.every(t => t.test(r.stats, r))) {
-        pass++; kept.push(r);
-        if (kept.length > 3000) { kept.sort((a, b) => keyOf(b) - keyOf(a)); kept.length = 300; }
-      }
+      seen++; last = n.value; const r = n.value.r;
+      if (active.every(t => t.test(r.stats, r))) { pass++; kept.push(r); if (kept.length > 3000) { kept.sort((a, b) => keyOf(b) - keyOf(a)); kept.length = 300; } }
     }
     if (last) $('#gProg').style.width = (100 * last.done / Math.max(1, last.total)).toFixed(1) + '%';
-    $('#gStatus').textContent = seen.toLocaleString('fr-FR') + ' contrats testés · ' + pass.toLocaleString('fr-FR') + ' correspondent';
+    $('#gStatus').textContent = seen.toLocaleString('fr-FR') + ' contrats testés · ' + pass.toLocaleString('fr-FR') + ' retenus';
     if (n && !n.done) { setTimeout(step, 0); return; }
-    kept.sort((a, b) => keyOf(b) - keyOf(a));
-    genResults = kept.slice(0, 100);
-    $('#gProg').style.width = '100%';
-    $('#gRun').textContent = 'Chercher les contrats';
-    $('#gStatus').textContent = seen.toLocaleString('fr-FR') + ' contrats testés en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s · ' + pass.toLocaleString('fr-FR') + ' correspondent à vos critères';
+    kept.sort((a, b) => keyOf(b) - keyOf(a)); genResults = kept.slice(0, 100);
+    $('#gProg').style.width = '100%'; $('#gRun').textContent = 'Chercher les contrats';
+    $('#gStatus').textContent = seen.toLocaleString('fr-FR') + ' contrats testés en ' + ((performance.now() - t0) / 1000).toFixed(1) + ' s · ' + pass.toLocaleString('fr-FR') + ' correspondent';
     renderGen();
   };
   step();
 }
 function renderGen() {
-  $('#gCount').textContent = genResults.length ? genResults.length + ' meilleurs affichés' : '';
-  if (!genResults.length) { $('#gResults').innerHTML = '<div class="note">Aucun contrat ne coche tous ces critères. Retirez un critère, élargissez le budget ou les usures, ou importez des prix plus complets.</div>'; return; }
-  const sign = x => x > 0 ? 'pos' : x < 0 ? 'neg' : '';
+  $('#gCount').textContent = genResults.length ? genResults.length + ' meilleurs' : '';
+  if (!genResults.length) { $('#gResults').innerHTML = '<div class="card pad note">Aucun contrat ne coche tous ces critères. Retirez un critère ou élargissez le budget et les usures.</div>'; return; }
   $('#gResults').innerHTML = genResults.map((r, i) => {
     const s = r.stats;
-    const ins = r.parts.map(p => '<div>' + skinLabel(p.k.s) + ' <b class="mono">' + p.q + '×</b> ' + esc(D.skins[p.k.s].n) + ' <span class="wear">' + FF.WEAR_SHORT[p.k.w] + '</span> <span class="muted small">~' + p.k.f.toFixed(3) + ' · ' + money(p.k.price) + ' · ' + esc(collName(p.k.c)) + '</span></div>').join('');
-    return '<div class="res"><div class="ins">' + ins + '</div><div><button class="btn small" data-open="' + i + '" type="button">Ouvrir</button></div>' +
-      '<div class="kpis"><div><span>Coût</span><b>' + money(s.cost) + '</b></div><div><span>Gain espéré</span><b class="' + sign(s.profit) + '">' + (s.profit > 0 ? '+' : '') + money(s.profit) + '</b></div><div><span>ROI</span><b class="' + sign(s.roi) + '">' + pct(s.roi) + '</b></div><div><span>Profit</span><b>' + pct(s.pProfit, 0) + '</b></div><div><span>Pire</span><b class="' + sign(s.worst - s.cost) + '">' + money(s.worst) + '</b></div><div><span>Meilleure</span><b>' + money(s.best) + '</b></div><div><span>Issues</span><b>' + s.n + '</b></div></div></div>';
+    const ins = r.parts.map(p => { const sk = D.skins[p.k.s], nm = splitName(sk); return '<div class="in">' + art(sk, 44) + '<span class="q">' + p.q + '×</span><div class="t">' + esc(nm.f) + ' ' + wearTag(p.k.w) + '<small>' + esc(nm.w) + ' · ~' + p.k.f.toFixed(3) + ' · ' + money(p.k.price) + '</small></div></div>'; }).join('');
+    return '<div class="contract"><div class="ins">' + ins + '</div><button class="btn blue sm" data-open="' + i + '" type="button">Ouvrir</button>' +
+      '<div class="k"><div><span>Coût</span><b>' + money(s.cost) + '</b></div><div><span>Gain espéré</span><b class="' + sgn(s.profit) + '">' + plus(s.profit) + '</b></div><div><span>ROI</span><b class="' + sgn(s.roi) + '">' + pct(s.roi) + '</b></div><div><span>Chance de profit</span><b>' + pct(s.pProfit, 0) + '</b></div><div><span>Pire</span><b class="' + sgn(s.worst - s.cost) + '">' + money(s.worst) + '</b></div><div><span>Meilleure</span><b>' + money(s.best) + '</b></div><div><span>Issues</span><b>' + s.n + '</b></div></div></div>';
   }).join('');
 }
 
-/* ---------- Correction manuelle des prix ---------- */
-function renderManual(si) {
-  const s = D.skins[si];
-  const sts = s.st && !s.g ? [false, true] : [false];
-  const wears = s.v ? [-1] : [0, 1, 2, 3, 4].filter(w => FF.WEAR_BOUNDS[w + 1] > s.mn && FF.WEAR_BOUNDS[w] < s.mx);
-  let h = '<div class="skinname" style="margin-bottom:8px">' + skinLabel(si) + thumb(s) + '<div><b>' + esc(s.n) + '</b><small>plage ' + s.mn + ' – ' + s.mx + '</small></div></div><div class="tbl-wrap"><table><thead><tr><th>Usure</th>' + sts.map(x => '<th class="num">' + (x ? 'StatTrak™' : 'Normal') + '</th>').join('') + '</tr></thead><tbody>';
-  for (const w of wears) {
-    h += '<tr><td>' + (w < 0 ? 'Vanilla' : '<span class="wear">' + FF.WEAR_SHORT[w] + '</span> ' + FF.WEAR_FR[w]) + '</td>';
-    for (const x of sts) {
-      const name = FF.marketName(s, w, x);
-      h += '<td class="num"><input type="number" step="0.01" min="0" data-mname="' + esc(name) + '" value="' + (manual[name] ?? '') + '" placeholder="' + (priceOf(si, w, x) ?? '?') + '" aria-label="Prix ' + esc(name) + '"></td>';
-    }
-    h += '</tr>';
-  }
-  $('#pmEditor').innerHTML = h + '</tbody></table></div><div class="note">Videz un champ pour revenir au prix importé.</div>';
+/* ---------- Skins (wiki) ---------- */
+const WK = Object.assign({ q: '', cat: '', weapon: '', rar: '', sort: 'pop', limit: 60, sel: null, wear: null, st: false });
+function weaponList() {
+  const list = D.weapons.slice();
+  const have = new Set(list.map(w => w.n));
+  D.skins.forEach(s => { if (s.w && !have.has(s.w) && CAT_FR[s.k]) { have.add(s.w); list.push({ n: s.w, k: s.k, img: s.img }); } });
+  return list;
 }
-
-/* ---------- Wiki ---------- */
-const CAT_FR = { Rifles: 'Fusils', Pistols: 'Pistolets', SMGs: 'Mitraillettes', Heavy: 'Armes lourdes', Knives: 'Couteaux', Gloves: 'Gants', Equipment: 'Équipement' };
-const WK = { mode: 'skins', q: '', cat: '', rar: '', sort: 'name', limit: 60, sel: null, col: null };
-function picHTML(s) {
-  if (!s.img) return '<div class="ph">' + esc(s.w || '') + '</div>';
-  return '<img loading="lazy" alt="' + esc(s.n) + '" src="' + esc(s.img) + '" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'ph\',textContent:' + esc(JSON.stringify(s.w || '')) + '}))">';
+function buildMega() {
+  const ws = weaponList(), cats = ['Pistols', 'Rifles', 'SMGs', 'Heavy', 'Knives', 'Gloves'];
+  $('#megaMenu').innerHTML = cats.map(c => '<div><h4>' + CAT_FR[c] + '</h4><ul>' + ws.filter(w => w.k === c).sort((a, b) => a.n.localeCompare(b.n)).map(w => '<li><button type="button" data-weapon="' + esc(w.n) + '">' + (w.img ? '<img alt="" loading="lazy" src="' + esc(w.img) + '" onerror="this.style.visibility=\'hidden\'">' : '') + esc(w.n) + '</button></li>').join('') + '</ul></div>').join('') +
+    '<div class="all">' + FF.RARITY_FR.map((n, i) => '<button type="button" class="chip text" data-rarity="' + i + '"><i style="width:9px;height:9px;border-radius:2px;background:' + rc(i) + '"></i>' + n + '</button>').join('') + '<button type="button" class="btn sm blue" data-weapon="">Tous les skins</button></div>';
 }
-function wearsOf(s) { return s.v ? [-1] : [0, 1, 2, 3, 4].filter(w => FF.WEAR_BOUNDS[w + 1] > s.mn && FF.WEAR_BOUNDS[w] < s.mx); }
-function minPrice(si) { let m = null; for (const w of wearsOf(D.skins[si])) { const p = priceOf(si, w, false); if (p != null && (m == null || p < m)) m = p; } return m; }
-function var7(si) {
-  const s = D.skins[si]; let a = 0, b = 0;
-  for (const w of wearsOf(s)) { const r = autoRow(FF.marketName(s, w, false)); if (r && r[0] && r[4]) { a += r[0]; b += r[4]; } }
-  return b ? a / b - 1 : null;
-}
-function initWiki() {
-  $('#wcat').innerHTML = '<option value="">Toutes</option>' + Object.entries(CAT_FR).map(([k, v]) => '<option value="' + k + '">' + v + '</option>').join('');
-  $('#wrar').innerHTML = '<option value="">Toutes</option>' + FF.RARITY_FR.map((n, i) => '<option value="' + i + '">' + n + '</option>').join('');
-  $('#wq').addEventListener('input', e => { WK.q = e.target.value; WK.limit = 60; WK.sel = WK.col = null; renderWiki(); });
-  $('#wcat').addEventListener('change', e => { WK.cat = e.target.value; WK.limit = 60; WK.sel = WK.col = null; renderWiki(); });
-  $('#wrar').addEventListener('change', e => { WK.rar = e.target.value; WK.limit = 60; WK.sel = WK.col = null; renderWiki(); });
-  $('#wsort').addEventListener('change', e => { WK.sort = e.target.value; renderWiki(); });
-  $('#wMode').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; WK.mode = b.dataset.m; WK.sel = WK.col = null; $$('#wMode button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderWiki(); });
-  $('#wikiBody').addEventListener('click', e => {
-    const t = e.target.closest('[data-skin],[data-col],[data-back],[data-more],[data-usecalc]');
-    if (!t) return;
-    if (t.dataset.skin != null) { WK.sel = +t.dataset.skin; WK.col = null; }
-    else if (t.dataset.col != null) { WK.col = +t.dataset.col; WK.sel = null; }
-    else if (t.dataset.back != null) { WK.sel = WK.col = null; }
-    else if (t.dataset.more != null) { WK.limit += 60; }
-    else if (t.dataset.usecalc != null) {
-      const si = +t.dataset.usecalc, s = D.skins[si];
-      if (S.rar !== s.r) { S.rar = s.r; S.lines = []; }
-      renderCalc(); setPick(si); show('calc'); window.scrollTo({ top: 0 }); return;
-    }
-    renderWiki(); window.scrollTo({ top: 0 });
-  });
-  renderWiki();
-}
-function renderWiki() {
-  const box = $('#wikiBody');
-  if (WK.sel != null) { box.innerHTML = skinPage(WK.sel); return; }
-  if (WK.col != null) { box.innerHTML = colPage(WK.col); return; }
-  const words = WK.q.toLowerCase().split(/\s+/).filter(Boolean);
-  if (WK.mode === 'cols') {
-    const list = D.collections.map((c, i) => i).filter(i => words.every(w => D.collections[i].n.toLowerCase().includes(w)))
-      .sort((a, b) => String(D.collections[b].date || '').localeCompare(String(D.collections[a].date || '')) || D.collections[a].n.localeCompare(D.collections[b].n));
-    box.innerHTML = '<div class="note" style="margin-bottom:8px">' + list.length + ' collections</div><div class="wgrid">' + list.map(i => {
-      const c = D.collections[i]; const n = D.skins.filter(s => s.c.includes(i)).length;
-      return '<button type="button" class="card" data-col="' + i + '"><div class="pic">' + (c.img ? '<img loading="lazy" alt="" src="' + esc(c.img) + '" onerror="this.remove()">' : '') + '</div><div class="nm">' + esc(c.n) + '</div><div class="sub"><span>' + n + ' skins</span><span>' + (c.pool ? '★ ' + c.pool.length : (c.crates ? '' : 'carte / armory')) + '</span></div><div class="strip" style="background:var(--line)"></div></button>';
-    }).join('') + '</div>';
-    return;
-  }
-  let list = [];
+function filteredSkins() {
+  const words = WK.q.toLowerCase().split(/\s+/).filter(Boolean), list = [];
   D.skins.forEach((s, i) => {
     if (WK.cat && s.k !== WK.cat) return;
+    if (WK.weapon && s.w !== WK.weapon) return;
     if (WK.rar !== '' && s.r !== +WK.rar) return;
     if (words.length) { const hay = (s.n + ' ' + (s.c[0] != null ? D.collections[s.c[0]].n : '') + ' ' + (s.cr || []).map(x => D.crates[x]).join(' ')).toLowerCase(); if (!words.every(w => hay.includes(w))) return; }
     list.push(i);
   });
-  const mp = new Map();
-  const P = i => { if (!mp.has(i)) mp.set(i, minPrice(i)); return mp.get(i); };
-  if (WK.sort === 'name') list.sort((a, b) => D.skins[a].n.localeCompare(D.skins[b].n));
-  else if (WK.sort === 'rar') list.sort((a, b) => D.skins[b].r - D.skins[a].r || D.skins[a].n.localeCompare(D.skins[b].n));
-  else if (WK.sort === 'pdesc') list.sort((a, b) => (P(b) ?? -1) - (P(a) ?? -1));
-  else if (WK.sort === 'pasc') list.sort((a, b) => (P(a) ?? 1e12) - (P(b) ?? 1e12));
-  else if (WK.sort === 'var') list.sort((a, b) => (var7(b) ?? -9) - (var7(a) ?? -9));
-  const shown = list.slice(0, WK.limit);
-  box.innerHTML = '<div class="note" style="margin-bottom:8px">' + list.length.toLocaleString('fr-FR') + ' skins' + (isDemo() ? ' · prix de démonstration' : '') + '</div><div class="wgrid">' + shown.map(i => {
-    const s = D.skins[i], v = var7(i);
-    return '<button type="button" class="card" data-skin="' + i + '"><div class="pic">' + picHTML(s) + '</div><div class="nm">' + esc(s.n) + '</div><div class="sub"><span>' + esc(s.c[0] != null ? collName(s.c[0]) : CAT_FR[s.k] || '') + '</span><span class="mono">' + (P(i) != null ? 'dès ' + money(P(i)) : '') + (v != null ? ' <span class="' + (v >= 0 ? 'up' : 'down') + '">' + (v >= 0 ? '+' : '') + pct(v, 0) + '</span>' : '') + '</span></div><div class="strip" style="background:' + FF.RARITY_COLOR[s.r] + '"></div></button>';
-  }).join('') + '</div>' + (list.length > shown.length ? '<div style="text-align:center;margin-top:14px"><button class="btn" data-more type="button">Afficher 60 de plus (' + (list.length - shown.length) + ' restants)</button></div>' : '');
+  const P = i => minPrice(i);
+  const by = { name: (a, b) => D.skins[a].n.localeCompare(D.skins[b].n), rar: (a, b) => D.skins[b].r - D.skins[a].r || D.skins[a].n.localeCompare(D.skins[b].n), pdesc: (a, b) => (P(b) ?? -1) - (P(a) ?? -1), pasc: (a, b) => (P(a) ?? 1e12) - (P(b) ?? 1e12), var: (a, b) => (var7(b) ?? -9) - (var7(a) ?? -9), pop: (a, b) => D.skins[b].r - D.skins[a].r || (P(b) ?? -1) - (P(a) ?? -1) };
+  list.sort(by[WK.sort] || by.name);
+  return list;
+}
+function itemCard(i) {
+  const s = D.skins[i], nm = splitName(s), p = minPrice(i), v = var7(i);
+  return '<button type="button" class="item" data-skin="' + i + '">' + art(s, 120) + '<div><div class="wpn">' + esc(nm.w) + '</div><div class="fin">' + esc(nm.f || nm.w) + '</div></div><div class="foot"><span class="price">' + (p != null ? money(p) : '<span class="muted small">pas de prix</span>') + '</span>' + (v != null ? '<span class="var ' + (v >= 0 ? 'pos' : 'neg') + '">' + (v >= 0 ? '▲ ' : '▼ ') + pct(Math.abs(v), 1) + '</span>' : '') + '</div></button>';
+}
+function renderSkins() {
+  const box = $('#skinsBody');
+  if (WK.sel != null) { box.innerHTML = skinPage(WK.sel); return; }
+  const list = filteredSkins(), shown = list.slice(0, WK.limit);
+  const title = WK.weapon || (WK.cat ? CAT_FR[WK.cat] : WK.rar !== '' ? FF.RARITY_FR[WK.rar] : 'Tous les skins');
+  box.innerHTML = '<div class="sk-head"><div class="stack" style="gap:4px"><div class="eyebrow">Wiki des skins</div><h1>' + esc(title) + '</h1></div><div class="row"><input type="search" id="wq" placeholder="Filtrer…" value="' + esc(WK.q) + '" aria-label="Filtrer les skins"><select id="wsort" aria-label="Trier"><option value="pop">Rareté puis prix</option><option value="name">Nom</option><option value="pdesc">Prix décroissant</option><option value="pasc">Prix croissant</option><option value="var">Plus forte hausse 7 j</option></select></div></div>' +
+    '<div class="list-layout"><div class="card pad stack filters"><div class="field"><span>Catégorie</span><div class="flist">' + ['', 'Pistols', 'Rifles', 'SMGs', 'Heavy', 'Knives', 'Gloves'].map(c => '<button type="button" data-cat="' + c + '" aria-pressed="' + (WK.cat === c && !WK.weapon) + '">' + (c ? CAT_FR[c] : 'Toutes') + '</button>').join('') + '</div></div>' +
+    '<div class="field"><span>Rareté</span><div class="flist">' + ['', 0, 1, 2, 3, 4, 5, 6].map(r => '<button type="button" data-rar="' + r + '" aria-pressed="' + (String(WK.rar) === String(r)) + '">' + (r === '' ? '<i style="background:var(--line)"></i>Toutes' : '<i style="background:' + rc(r) + '"></i>' + FF.RARITY_FR[r]) + '</button>').join('') + '</div></div></div>' +
+    '<div class="stack"><div class="note">' + list.length.toLocaleString('fr-FR') + ' skins' + (isDemo() ? ' · prix de démonstration' : '') + '</div><div class="grid">' + shown.map(itemCard).join('') + '</div>' +
+    (list.length > shown.length ? '<div style="text-align:center"><button class="btn" data-more type="button">Afficher plus (' + (list.length - shown.length) + ' restants)</button></div>' : '') + '</div></div>';
+  $('#wsort').value = WK.sort;
 }
 function floatBar(s) {
-  const W = 600, H = 46, x = v => 8 + v * (W - 16);
-  const cols = ['#4fd18b', '#8fd14f', '#f5c451', '#f08a3c', '#ff6b6b'];
+  const W = 600, H = 50, x = v => 8 + v * (W - 16), cols = ['#4ade80', '#a3e635', '#facc15', '#fb923c', '#f87171'];
   let g = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Plage de float ' + s.mn + ' à ' + s.mx + '">';
   for (let w = 0; w < 5; w++) {
-    g += '<rect x="' + x(FF.WEAR_BOUNDS[w]) + '" y="10" width="' + (x(FF.WEAR_BOUNDS[w + 1]) - x(FF.WEAR_BOUNDS[w])) + '" height="12" fill="' + cols[w] + '" fill-opacity=".18"></rect>';
-    g += '<text x="' + ((x(FF.WEAR_BOUNDS[w]) + x(FF.WEAR_BOUNDS[w + 1])) / 2) + '" y="8" font-size="9" text-anchor="middle" fill="var(--muted)" font-family="var(--f-mono)">' + FF.WEAR_SHORT[w] + '</text>';
+    g += '<rect x="' + x(FF.WEAR_BOUNDS[w]) + '" y="14" width="' + (x(FF.WEAR_BOUNDS[w + 1]) - x(FF.WEAR_BOUNDS[w])) + '" height="10" fill="' + cols[w] + '" fill-opacity=".2"></rect>';
+    g += '<text x="' + ((x(FF.WEAR_BOUNDS[w]) + x(FF.WEAR_BOUNDS[w + 1])) / 2) + '" y="9" font-size="10" text-anchor="middle" fill="var(--muted)" font-family="var(--f-body)" font-weight="600">' + FF.WEAR_SHORT[w] + '</text>';
   }
-  g += '<rect x="' + x(s.mn) + '" y="10" width="' + Math.max(2, x(s.mx) - x(s.mn)) + '" height="12" rx="2" fill="var(--accent)" fill-opacity=".85"></rect>';
-  g += '<text x="' + x(s.mn) + '" y="38" font-size="11" text-anchor="' + (s.mn < .05 ? 'start' : 'middle') + '" fill="var(--fg)" font-family="var(--f-mono)">' + s.mn + '</text>';
-  g += '<text x="' + x(s.mx) + '" y="38" font-size="11" text-anchor="' + (s.mx > .95 ? 'end' : 'middle') + '" fill="var(--fg)" font-family="var(--f-mono)">' + s.mx + '</text>';
+  g += '<rect x="' + x(s.mn) + '" y="14" width="' + Math.max(2, x(s.mx) - x(s.mn)) + '" height="10" rx="2" fill="var(--blue)"></rect>';
+  g += '<text x="' + x(s.mn) + '" y="42" font-size="11" text-anchor="' + (s.mn < .05 ? 'start' : 'middle') + '" fill="var(--fg)" font-family="var(--f-mono)">' + s.mn + '</text><text x="' + x(s.mx) + '" y="42" font-size="11" text-anchor="' + (s.mx > .95 ? 'end' : 'middle') + '" fill="var(--fg)" font-family="var(--f-mono)">' + s.mx + '</text>';
   return g + '</svg>';
 }
-function chipSkin(i) { const s = D.skins[i]; const p = minPrice(i); return '<button type="button" class="chip" data-skin="' + i + '"><span class="rar-dot" style="background:' + FF.RARITY_COLOR[s.r] + '"></span> ' + esc(s.n) + (p != null ? ' <span class="muted mono">' + money(p) + '</span>' : '') + '</button>'; }
+function chipSkin(i) { const s = D.skins[i], p = minPrice(i); return '<button type="button" class="chip" data-skin="' + i + '">' + art(s, 30, 'noline') + '<span>' + esc(s.n) + (p != null ? ' <span class="muted mono">' + money(p) + '</span>' : '') + '</span></button>'; }
 function skinPage(si) {
-  const s = D.skins[si];
-  const sts = s.st && !s.g ? [false, true] : [false];
-  const ws = wearsOf(s);
-  const varCell = (r, k) => { if (!r || !r[0] || !r[k]) return '<td class="num muted">—</td>'; const v = r[0] / r[k] - 1; return '<td class="num ' + (v >= 0 ? 'up' : 'down') + '">' + (v >= 0 ? '+' : '') + pct(v, 1) + '</td>'; };
-  let prices = '<div class="tbl-wrap"><table><thead><tr><th>Usure</th>' + sts.map(x => '<th class="num">' + (x ? 'StatTrak™' : 'Normal') + '</th>').join('') + (auto ? '<th class="num">vs 7 j</th><th class="num">vs 30 j</th><th class="num">En vente</th><th class="num">Ventes 7 j</th>' : '') + '</tr></thead><tbody>';
-  for (const w of ws) {
-    const r = autoRow(FF.marketName(s, w, false));
-    prices += '<tr><td>' + (w < 0 ? 'Vanilla' : '<span class="wear">' + FF.WEAR_SHORT[w] + '</span> ' + FF.WEAR_FR[w]) + '</td>' + sts.map(x => '<td class="num">' + money(priceOf(si, w, x)) + '</td>').join('') +
-      (auto ? varCell(r, 4) + varCell(r, 5) + '<td class="num">' + (r ? r[2] : '—') + '</td><td class="num">' + (r ? r[7] : '—') + '</td>' : '') + '</tr>';
+  const s = D.skins[si], nm = splitName(s), ws = wearsOf(s), canST = s.st && !s.g;
+  const st = canST && WK.st;
+  if (WK.wear == null || !ws.includes(WK.wear)) WK.wear = ws.reduce((best, w) => { const p = priceOf(si, w, st); return best == null || (p != null && priceOf(si, best, st) == null) ? w : best; }, null) ?? ws[0];
+  const name = FF.marketName(s, WK.wear, st), row = autoRow(name);
+  // marchés
+  let mk = '';
+  if (row && auto.markets) {
+    const lst = auto.markets.map((m, k) => ({ m, p: row[6] ? row[6][k] : null })).filter(x => x.p != null).sort((a, b) => a.p - b.p);
+    const bestCash = lst.find(x => !(MARKETS[x.m] || {}).trade && !(MARKETS[x.m] || {}).steam);
+    mk = lst.map(x => { const M = MARKETS[x.m] || { n: x.m, c: '#555', u: () => '#' }; const tag = M.steam ? 'Steam (frais 15 %)' : M.trade ? "Site d'échange" : 'Marché'; return '<div class="market' + (x === bestCash ? ' best' : '') + '"><div class="mk"><span class="mlogo" style="background:' + M.c + '">' + esc(M.n.slice(0, 2)) + '</span><div><b>' + esc(M.n) + '</b><small>' + (x === bestCash ? 'Le moins cher' : tag) + '</small></div></div><div class="hide-s"><div class="lbl">Écart / référence</div><div class="' + (row[0] ? sgn(row[0] - x.p) : '') + ' small">' + (row[0] ? (x.p <= row[0] ? '−' : '+') + pct(Math.abs(x.p / row[0] - 1), 0) : '—') + '</div></div><div><div class="lbl">À partir de</div><div class="p">' + money(x.p) + '</div></div><a class="btn blue sm" href="' + esc(M.u(name)) + '" target="_blank" rel="noopener">Voir l\'offre ›</a></div>'; }).join('');
   }
-  prices += '</tbody></table></div>' + (auto ? '<div class="note">Variations : prix le plus bas actuel comparé à la médiane des ventes Skinport sur 7 et 30 jours.</div>' : isDemo() ? '<div class="note">Prix de démonstration (fictifs).</div>' : '');
-  // Trade up
+  const ref = row ? row[0] : priceOf(si, WK.wear, st);
+  const wearRows = ws.map(w => { const p = priceOf(si, w, st); const lo = w < 0 ? 0 : Math.max(FF.WEAR_BOUNDS[w], s.mn), hi = w < 0 ? 1 : Math.min(FF.WEAR_BOUNDS[w + 1], s.mx); return '<button type="button" data-wsel="' + w + '" aria-pressed="' + (w === WK.wear) + '">' + wearTag(w) + '<span>' + (w < 0 ? 'Vanilla' : FF.WEAR_FR[w]) + '<small class="mono">' + lo.toFixed(2) + ' – ' + hi.toFixed(2) + '</small></span><b>' + money(p) + '</b></button>'; }).join('');
   let tu = '';
   if (s.r < 6 && s.c.length) {
-    const c = s.c[0];
-    const outs = FF.outputsOf(D, c, s.r, false);
-    tu += '<h2>En entrée de contrat, peut donner</h2>' + (outs.length ? (s.r === 5 ? '<div class="note">' + outs.length + ' couteaux / gants possibles (5 Secret par contrat). <button class="btn small" data-col="' + c + '" type="button">Voir le pool</button></div>' : '<div class="chips">' + outs.map(chipSkin).join('') + '</div>') : '<div class="note">Rien : c\'est la rareté la plus haute de sa collection' + (s.r === 5 ? ' et la collection n\'a pas de couteaux.' : '.') + '</div>');
-    const ins = s.r > 0 ? D.outs[c][s.r - 1] : [];
-    tu += '<h2>Peut être obtenu depuis</h2>' + (ins.length ? '<div class="chips">' + ins.map(chipSkin).join('') + '</div>' : '<div class="note">Aucun contrat : rareté la plus basse de sa collection.</div>');
+    const c = s.c[0], outs = FF.outputsOf(D, c, s.r, false), ins = s.r > 0 ? D.outs[c][s.r - 1] : [];
+    tu += '<div class="card pad stack"><h2>En entrée de contrat, peut donner</h2>' + (outs.length ? (s.r === 5 ? '<div class="note">' + outs.length + ' couteaux et gants possibles (5 Secret par contrat).</div><div><button class="btn sm" data-col="' + c + '" type="button">Voir le pool de la collection</button></div>' : '<div class="chips">' + outs.map(chipSkin).join('') + '</div>') : '<div class="note">Rien : rareté la plus haute de sa collection' + (s.r === 5 ? ', sans couteaux.' : '.') + '</div>') + '</div>';
+    tu += '<div class="card pad stack"><h2>Peut être obtenu à partir de</h2>' + (ins.length ? '<div class="chips">' + ins.map(chipSkin).join('') + '</div>' : '<div class="note">Aucun contrat : rareté la plus basse de sa collection.</div>') + '</div>';
   } else if (s.r === 6) {
     const cs = D.collections.map((c, i) => i).filter(i => (D.collections[i].pool || []).includes(si));
-    tu += '<h2>Obtenu par contrat de 5 Secret de</h2>' + (cs.length ? '<div class="chips">' + cs.map(i => '<button type="button" class="chip" data-col="' + i + '">' + esc(D.collections[i].n) + '</button>').join('') + '</div>' : '<div class="note">Aucune collection connue.</div>');
+    tu += '<div class="card pad stack"><h2>Obtenu avec 5 Secret de</h2>' + (cs.length ? '<div class="chips">' + cs.map(i => '<button type="button" class="chip text" data-col="' + i + '">' + esc(D.collections[i].n) + '</button>').join('') + '</div>' : '<div class="note">Aucune collection connue.</div>') + '</div>';
   }
-  return '<div class="row" style="margin-bottom:12px"><button class="btn small" data-back type="button">← Retour à la liste</button></div>' +
-    '<div class="detail"><div class="panel"><div class="hero-pic">' + picHTML(s) + '</div><h1 style="font-size:22px">' + esc(s.n) + '</h1>' +
-    '<div class="chips"><span class="pill" style="color:' + FF.RARITY_COLOR[s.r] + ';border-color:' + FF.RARITY_COLOR[s.r] + '">' + FF.RARITY_FR[s.r] + '</span>' + (s.st ? '<span class="pill">StatTrak™ disponible</span>' : '') + (s.sv ? '<span class="pill">Souvenir</span>' : '') + (s.v ? '<span class="pill">Vanilla</span>' : '') + '</div>' +
-    '<dl class="facts"><dt>Arme</dt><dd>' + esc(s.w || '—') + ' · ' + esc(CAT_FR[s.k] || s.k || '') + '</dd>' + (s.pt ? '<dt>Motif</dt><dd>' + esc(s.pt) + '</dd>' : '') + (s.tm ? '<dt>Camp</dt><dd>' + (s.tm === 'T' ? 'Terroristes' : 'Antiterroristes') + '</dd>' : '') +
-    '<dt>Collection</dt><dd>' + (s.c.length ? s.c.map(c => '<button type="button" class="chip" data-col="' + c + '">' + esc(D.collections[c].n) + '</button>').join(' ') : '—') + '</dd>' +
-    '<dt>Caisses</dt><dd>' + ((s.cr || []).length ? (s.cr.length > 6 ? s.cr.slice(0, 6).map(x => esc(D.crates[x])).join(', ') + ' et ' + (s.cr.length - 6) + ' autres' : s.cr.map(x => esc(D.crates[x])).join(', ')) : '—') + '</dd></dl>' +
-    (s.r < 6 ? '<button class="btn primary" data-usecalc="' + si + '" type="button">Utiliser dans le calculateur</button>' : '') + '</div>' +
-    '<div class="panel"><h2>Plage de float</h2>' + (s.v ? '<div class="note">Couteau vanilla : pas d\'usure.</div>' : floatBar(s)) + '<h2>Prix par usure</h2>' + prices + tu + '</div></div>';
+  const hist = row && row[2] ? '<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))"><div><span>Référence</span><b>' + money(row[0]) + '</b></div><div><span>Le moins cher</span><b>' + money(row[1]) + '</b></div><div><span>Médiane 7 j</span><b>' + money(row[2]) + '</b><small class="' + sgn((row[0] || 0) - row[2]) + '">' + (row[0] ? ((row[0] >= row[2] ? '+' : '') + pct(row[0] / row[2] - 1, 1)) : '') + '</small></div><div><span>Ventes 7 j</span><b>' + (row[4] || 0) + '</b><small>' + (row[5] || 0) + ' en vente</small></div></div>' : '';
+  return '<div class="crumbs"><button type="button" data-back>Skins</button> › <button type="button" data-weapon="' + esc(s.w || '') + '">' + esc(s.w || '') + '</button> › <span>' + esc(nm.f) + '</span></div>' +
+    '<div class="sk-head"><div class="stack" style="gap:6px"><h1>' + esc(s.n) + '</h1><div class="row" style="gap:6px"><span class="pill" style="color:' + rc(s.r) + ';border-color:' + rc(s.r) + '55">' + FF.RARITY_FR[s.r] + '</span>' + (s.st ? '<span class="pill">StatTrak™</span>' : '') + (s.sv ? '<span class="pill">Souvenir</span>' : '') + (s.c.length ? '<button type="button" class="pill" data-col="' + s.c[0] + '" style="cursor:pointer;color:var(--fg-2)">' + esc(D.collections[s.c[0]].n) + '</button>' : '') + '</div></div>' + (s.r < 6 ? '<button class="btn blue" data-usecalc="' + si + '" type="button">Utiliser dans un trade up</button>' : '') + '</div>' +
+    '<div class="sk-layout"><div class="stack"><div class="card" style="overflow:hidden">' + art(s, 250, 'sk-art') +
+    (canST ? '<div style="padding:10px 14px"><div class="seg" style="width:100%"><button type="button" data-st2="0" aria-pressed="' + !st + '" style="flex:1">Normal</button><button type="button" data-st2="1" aria-pressed="' + st + '" style="flex:1">StatTrak™</button></div></div>' : '') +
+    '<div class="wears">' + wearRows + '</div></div>' +
+    '<div class="card pad stack"><h2>Plage de float</h2>' + (s.v ? '<div class="note">Couteau vanilla : pas d\'usure.</div>' : floatBar(s)) +
+    '<dl class="facts"><dt>Arme</dt><dd>' + esc(s.w || '—') + ' · ' + esc(CAT_FR[s.k] || s.k || '') + '</dd>' + (s.pt ? '<dt>Motif</dt><dd>' + esc(s.pt) + '</dd>' : '') + (s.tm ? '<dt>Camp</dt><dd>' + (s.tm === 'T' ? 'Terroristes' : 'Antiterroristes') + '</dd>' : '') + '<dt>Caisses</dt><dd>' + ((s.cr || []).length ? (s.cr.length > 5 ? s.cr.slice(0, 5).map(x => esc(D.crates[x])).join(', ') + ' et ' + (s.cr.length - 5) + ' autres' : s.cr.map(x => esc(D.crates[x])).join(', ')) : '—') + '</dd></dl></div></div>' +
+    '<div class="stack"><div class="row between"><h2>Offres · ' + wearTag(WK.wear) + ' ' + esc(name) + '</h2><span class="note">' + (auto ? 'mis à jour ' + ago(auto.updated) : '') + '</span></div>' + hist +
+    (mk ? '<div class="markets">' + mk + '</div>' : '<div class="card pad note">' + (auto ? 'Aucune offre trouvée pour cette usure.' : 'Les prix par marché apparaissent sur le site en ligne. Prix actuel : ' + money(ref) + '.') + '</div>') + tu + '</div></div>';
 }
-function colPage(ci) {
-  const c = D.collections[ci];
-  let h = '<div class="row" style="margin-bottom:12px"><button class="btn small" data-back type="button">← Retour à la liste</button></div><div class="panel"><div class="row" style="align-items:center">' + (c.img ? '<img alt="" style="height:64px" src="' + esc(c.img) + '" onerror="this.remove()">' : '') + '<div><h1 style="font-size:22px">' + esc(c.n) + '</h1><div class="note">' + (c.crates ? 'Caisse : ' + c.crates.map(esc).join(', ') : 'Collection sans caisse (carte, Armory ou opération)') + (c.date ? ' · sortie ' + new Date(c.date).toLocaleDateString('fr-FR') : '') + '</div></div></div>';
-  for (let r = 5; r >= 0; r--) {
-    const list = D.outs[ci][r]; if (!list.length) continue;
-    h += '<h2 style="color:' + FF.RARITY_COLOR[r] + '">' + FF.RARITY_FR[r] + ' · ' + list.length + '</h2><div class="wgrid">' + list.map(i => { const s = D.skins[i], p = minPrice(i); return '<button type="button" class="card" data-skin="' + i + '"><div class="pic">' + picHTML(s) + '</div><div class="nm">' + esc(s.n) + '</div><div class="sub"><span class="mono">' + s.mn + '–' + s.mx + '</span><span class="mono">' + (p != null ? money(p) : '') + '</span></div><div class="strip" style="background:' + FF.RARITY_COLOR[r] + '"></div></button>'; }).join('') + '</div>';
+
+/* ---------- Collections ---------- */
+const CK = { sel: null, q: '' };
+function renderCols() {
+  const box = $('#colsBody');
+  if (CK.sel != null) {
+    const c = D.collections[CK.sel];
+    let h = '<div class="crumbs"><button type="button" data-cback>Collections</button> › <span>' + esc(c.n) + '</span></div><div class="sk-head"><div class="row">' + (c.img ? '<img alt="" style="height:64px" src="' + esc(c.img) + '" onerror="this.remove()">' : '') + '<div class="stack" style="gap:4px"><h1>' + esc(c.n) + '</h1><div class="note">' + (c.crates ? 'Caisse : ' + c.crates.map(esc).join(', ') : 'Collection sans caisse (carte, Armory ou opération)') + (c.date ? ' · sortie le ' + new Date(c.date).toLocaleDateString('fr-FR') : '') + '</div></div></div></div><div class="stack" style="gap:22px">';
+    for (let r = 5; r >= 0; r--) { const list = D.outs[CK.sel][r]; if (!list.length) continue; h += '<div class="stack"><h2 style="color:' + rc(r) + '">' + FF.RARITY_FR[r] + ' · ' + list.length + '</h2><div class="grid">' + list.map(itemCard).join('') + '</div></div>'; }
+    if (c.pool) h += '<div class="stack"><h2 style="color:' + rc(6) + '">★ Couteaux et gants · ' + c.pool.length + '</h2><div class="note">Contrat de 5 Secret de cette collection. Chaque finition a la même chance ; en StatTrak™, seuls les couteaux sortent.</div><div class="grid">' + c.pool.map(itemCard).join('') + '</div></div>';
+    box.innerHTML = h + '</div>'; return;
   }
-  if (c.pool) h += '<h2 style="color:' + FF.RARITY_COLOR[6] + '">★ Couteaux et gants (contrat de 5 Secret) · ' + c.pool.length + '</h2><div class="note">Chaque finition a la même chance. En StatTrak™, seuls les couteaux sortent.</div><div class="chips">' + c.pool.map(chipSkin).join('') + '</div>';
-  return h + '</div>';
+  const words = CK.q.toLowerCase().split(/\s+/).filter(Boolean);
+  const list = D.collections.map((c, i) => i).filter(i => words.every(w => D.collections[i].n.toLowerCase().includes(w))).sort((a, b) => String(D.collections[b].date || '').localeCompare(String(D.collections[a].date || '')) || D.collections[a].n.localeCompare(D.collections[b].n));
+  box.innerHTML = '<div class="sk-head"><div class="stack" style="gap:4px"><div class="eyebrow">Wiki</div><h1>Collections</h1></div><input type="search" id="cq" placeholder="Filtrer…" value="' + esc(CK.q) + '" aria-label="Filtrer les collections"></div><div class="grid">' + list.map(i => {
+    const c = D.collections[i], n = D.skins.filter(s => s.c.includes(i)).length, top = D.skins.findIndex(s => s.c.includes(i) && s.r === Math.max(...D.skins.filter(x => x.c.includes(i)).map(x => x.r)));
+    return '<button type="button" class="item" data-col="' + i + '">' + (top >= 0 ? art(D.skins[top], 120) : '<div class="art" style="height:120px"></div>') + '<div><div class="wpn">' + (c.crates ? esc(c.crates[0]) : 'Carte / Armory') + '</div><div class="fin">' + esc(c.n) + '</div></div><div class="foot"><span class="small muted">' + n + ' skins</span>' + (c.pool ? '<span class="small" style="color:' + rc(6) + '">★ ' + c.pool.length + '</span>' : '') + '</div></button>';
+  }).join('') + '</div>';
+}
+
+/* ---------- Prix manuels ---------- */
+function renderManualSearch() {
+  const q = $('#pmQ').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!q.length) { $('#pmRes').innerHTML = ''; return; }
+  const res = []; for (let i = 0; i < D.skins.length && res.length < 30; i++) if (q.every(w => D.skins[i].n.toLowerCase().includes(w))) res.push(i);
+  $('#pmRes').innerHTML = res.map(i => { const s = D.skins[i], nm = splitName(s); return '<button type="button" class="mini" data-pm="' + i + '">' + art(s) + '<div class="t">' + esc(nm.f) + '<small>' + esc(nm.w) + '</small></div></button>'; }).join('');
+}
+function renderManual(si) {
+  const s = D.skins[si], sts = s.st && !s.g ? [false, true] : [false];
+  let h = '<b>' + esc(s.n) + '</b><div class="tbl-wrap"><table><thead><tr><th>Usure</th>' + sts.map(x => '<th class="r">' + (x ? 'StatTrak™' : 'Normal') + '</th>').join('') + '</tr></thead><tbody>';
+  for (const w of wearsOf(s)) { h += '<tr><td>' + wearTag(w) + '</td>' + sts.map(x => { const name = FF.marketName(s, w, x); return '<td class="r"><input type="number" step="0.01" min="0" style="width:100px" data-mname="' + esc(name) + '" value="' + (manual[name] ?? '') + '" placeholder="' + (priceOf(si, w, x) ?? '?') + '" aria-label="Prix ' + esc(name) + '"></td>'; }).join('') + '</tr>'; }
+  $('#pmEditor').innerHTML = h + '</tbody></table></div><div class="note">Videz un champ pour revenir au prix automatique.</div>';
 }
 
 /* ---------- Navigation ---------- */
+const VIEWS = ['calc', 'gen', 'skins', 'collections', 'prices', 'method'];
 function show(view) {
-  $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === view)));
+  if (!VIEWS.includes(view)) view = 'calc';
+  $$('nav.main [data-go]').forEach(b => b.setAttribute('aria-current', b.dataset.go === view ? 'page' : 'false'));
+  $('#skinsMenuBtn').setAttribute('aria-current', view === 'skins' ? 'page' : 'false');
   $$('.view').forEach(v => v.hidden = v.id !== 'view-' + view);
-  try { history.replaceState(null, '', '#' + view); } catch { location.hash = view; }
+  $('#megaMenu').hidden = true; $('#mainNav').classList.remove('open');
+  if (view === 'skins') renderSkins();
+  if (view === 'collections') renderCols();
+  try { history.replaceState(null, '', '#' + view); } catch { /* ignoré */ }
+  window.scrollTo({ top: 0 });
 }
+function openSkin(si) { WK.sel = si; WK.wear = null; show('skins'); }
+function openWeapon(w) { WK.sel = null; WK.weapon = w; WK.cat = ''; WK.rar = ''; WK.q = ''; WK.limit = 60; show('skins'); }
 
 /* ---------- Démarrage ---------- */
 async function boot() {
-  try {
-    const res = await fetch('data/cs2.json');
-    D = FF.index(await res.json());
-  } catch (e) {
-    $('#loading').textContent = 'Impossible de charger data/cs2.json. Ouvrez le site via un serveur web (pas en file://).';
-    return;
-  }
-  try {
-    const pr = await fetch('data/prices.json', { cache: 'no-cache' });
-    if (pr.ok) { auto = await pr.json(); if (auto && auto.items) { if (CUR_SYM[auto.currency] && !(prices && prices.map)) cur = CUR_SYM[auto.currency]; } else auto = null; }
-  } catch { auto = null; }
+  try { D = FF.index(await (await fetch('data/cs2.json')).json()); D.weapons = D.weapons || []; }
+  catch { $('#loading').textContent = 'Impossible de charger les données. Ouvrez le site via un serveur web.'; return; }
+  try { const pr = await fetch('data/prices.json', { cache: 'no-cache' }); if (pr.ok) { const j = await pr.json(); if (j && j.v === 2 && j.items) { auto = j; if (CUR_SYM[j.currency] && !(prices && prices.map)) cur = CUR_SYM[j.currency]; } } } catch { auto = null; }
   $('#loading').remove();
-  fillRaritySelect($('#rar'), S.rar); fillRaritySelect($('#gRar'), G.rar);
-  $('#pCur').value = cur;
-  makePicker($('#pickInput'), $('#pickList'), i => { const s = D.skins[i]; if (s.r === 6) return false; if (s.r !== S.rar) return false; return FF.inputProblem(D, i, S.rar, S.st) || true; }, setPick);
-  makePicker($('#pmInput'), $('#pmList'), () => true, si => { $('#pmInput').value = D.skins[si].n; renderManual(si); });
+  if (S.lines && !S.slots.length) delete S.lines;
+  rarityButtons($('#rarBtns'), S.rar, 6); rarityButtons($('#gRarBtns'), G.rar, 6); buildMega();
+  $('#pAutoField').value = autoField; $('#pCur').value = cur;
 
-  $('#rar').addEventListener('change', e => { S.rar = +e.target.value; S.lines = S.lines.filter(l => D.skins[l.s].r === S.rar); pick = null; $('#pickInput').value = ''; renderCalc(); });
-  $('#stSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.st = b.dataset.st === '1'; renderCalc(); });
-  $('#fee').addEventListener('input', e => { S.fee = Math.max(0, +e.target.value || 0); renderResult(); saveCalc(); });
-  $$('[data-fee]').forEach(b => b.addEventListener('click', () => { S.fee = +b.dataset.fee; $('#gFee').value = S.fee; renderCalc(); }));
-  $('#formula').addEventListener('change', e => { S.formula = e.target.value; renderCalc(); });
-  $('#addFloat').addEventListener('input', updateAddInfo);
-  $('#addBtn').addEventListener('click', () => addLine(false));
-  $('#fillBtn').addEventListener('click', () => addLine(true));
-  $('#clearBtn').addEventListener('click', () => { S.lines = []; renderCalc(); });
-  $('#sampleBtn').addEventListener('click', loadSample);
-  $('#lines').addEventListener('change', e => {
-    const el = e.target, i = +el.dataset.i, k = el.dataset.k; if (!k) return;
-    const l = S.lines[i];
-    if (k === 'price') l.price = el.value === '' ? null : +el.value;
-    else if (k === 'q') l.q = Math.max(0, Math.floor(+el.value || 0));
-    else l.f = +el.value;
-    renderCalc();
+  // navigation
+  document.addEventListener('click', e => {
+    const go = e.target.closest('[data-go]'); if (go) { show(go.dataset.go); return; }
+    const wp = e.target.closest('[data-weapon]'); if (wp) { openWeapon(wp.dataset.weapon); return; }
+    const ra = e.target.closest('[data-rarity]'); if (ra) { WK.sel = null; WK.weapon = ''; WK.cat = ''; WK.rar = ra.dataset.rarity; show('skins'); return; }
+    if (!e.target.closest('.dd')) $('#megaMenu').hidden = true;
   });
-  $('#lines').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) { S.lines.splice(+b.dataset.del, 1); renderCalc(); } });
+  $('#skinsMenuBtn').addEventListener('click', () => { const m = $('#megaMenu'); m.hidden = !m.hidden; $('#skinsMenuBtn').setAttribute('aria-expanded', String(!m.hidden)); });
+  $('#menuBtn').addEventListener('click', () => { const n = $('#mainNav'); n.classList.toggle('open'); $('#menuBtn').setAttribute('aria-expanded', String(n.classList.contains('open'))); });
+  $('#priceChip').addEventListener('click', () => show('prices'));
+  $('#gq').addEventListener('keydown', e => { if (e.key === 'Enter') { WK.q = e.target.value; WK.sel = null; WK.weapon = ''; WK.cat = ''; WK.rar = ''; WK.limit = 60; show('skins'); } });
+  $('#gq').addEventListener('input', e => { if (!$('#view-skins').hidden && WK.sel == null) { WK.q = e.target.value; WK.limit = 60; renderSkins(); } });
 
-  $('#gRar').addEventListener('change', e => { G.rar = +e.target.value; store.set('gen', G); });
-  $('#gStSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; G.st = b.dataset.st === '1'; renderTags(); store.set('gen', G); });
-  $('#gTags').addEventListener('click', e => { const b = e.target.closest('[data-tag]'); if (!b) return; const id = b.dataset.tag; G.tags = G.tags.includes(id) ? G.tags.filter(x => x !== id) : [...G.tags, id]; renderTags(); store.set('gen', G); });
-  $('#gWears').addEventListener('click', e => { const b = e.target.closest('[data-wear]'); if (!b) return; G.wears[+b.dataset.wear] = G.wears[+b.dataset.wear] ? 0 : 1; renderTags(); store.set('gen', G); });
-  ['#gRefund', '#gRoi', '#gJack'].forEach(s => $(s).addEventListener('input', renderTags));
+  // trade up
+  $('#rarBtns').addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (!b) return; const r = +b.dataset.r; if (r !== S.rar) { S.rar = r; S.slots = S.slots.filter(sl => D.skins[sl.s].r === r).slice(0, N()); pick = null; } renderCalc(); });
+  $('#stSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.st = b.dataset.st === '1'; renderCalc(); });
+  $('#fee').addEventListener('change', e => { S.fee = +e.target.value; renderCalc(); });
+  $('#formula').addEventListener('change', e => { S.formula = e.target.value; renderCalc(); });
+  $('#pickQ').addEventListener('input', renderPicker);
+  $('#pickRes').addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (!b || b.classList.contains('dis')) return; setPick(+b.dataset.pick); });
+  $('#pickRes').addEventListener('dblclick', e => { const b = e.target.closest('[data-pick]'); if (!b || b.classList.contains('dis')) return; setPick(+b.dataset.pick); addPicked(false); });
+  $('#addFloat').addEventListener('input', updateAddInfo);
+  $('#addBtn').addEventListener('click', () => addPicked(false));
+  $('#fillBtn').addEventListener('click', () => addPicked(true));
+  $('#clearBtn').addEventListener('click', () => { S.slots = []; renderCalc(); });
+  $('#sampleBtn').addEventListener('click', loadSample);
+  $('#slots').addEventListener('click', e => {
+    const d = e.target.closest('[data-del]'); if (d) { S.slots.splice(+d.dataset.del, 1); renderCalc(); return; }
+    const u = e.target.closest('[data-dup]'); if (u) { const sl = S.slots[+u.dataset.dup]; S.slots.splice(+u.dataset.dup + 1, 0, Object.assign({}, sl)); renderCalc(); return; }
+    if (e.target.closest('[data-addslot]')) { $('#pickerPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); $('#pickQ').focus({ preventScroll: true }); }
+  });
+  $('#slots').addEventListener('change', e => { const el = e.target, i = +el.dataset.i, k = el.dataset.k; if (!k) return; const sl = S.slots[i]; if (k === 'price') sl.price = el.value === '' ? null : +el.value; else sl.f = +el.value; renderCalc(); });
+  $('#outs').addEventListener('click', e => { const b = e.target.closest('[data-skin]'); if (b) openSkin(+b.dataset.skin); });
+
+  // générateur
+  $('#gRarBtns').addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (!b) return; G.rar = +b.dataset.r; renderGenControls(); });
+  $('#gStSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; G.st = b.dataset.st === '1'; renderGenControls(); });
+  $('#gTags').addEventListener('click', e => { const b = e.target.closest('[data-tag]'); if (!b) return; const id = b.dataset.tag; G.tags = G.tags.includes(id) ? G.tags.filter(x => x !== id) : [...G.tags, id]; renderGenControls(); });
+  $('#gWears').addEventListener('click', e => { const b = e.target.closest('[data-wear]'); if (!b) return; G.wears[+b.dataset.wear] = G.wears[+b.dataset.wear] ? 0 : 1; renderGenControls(); });
+  ['#gRefund', '#gRoi', '#gJack'].forEach(s => $(s).addEventListener('input', renderGenControls));
   $('#gPos').addEventListener('input', e => $('#gPosV').textContent = e.target.value + ' %');
   $('#gRun').addEventListener('click', runGen);
   $('#gResults').addEventListener('click', e => {
-    const b = e.target.closest('[data-open]'); if (!b) return;
-    const r = genResults[+b.dataset.open];
-    S.rar = G.rar; S.st = G.st; S.fee = +$('#gFee').value || 0;
-    S.lines = r.parts.map(p => ({ s: p.k.s, f: +p.k.f.toFixed(4), q: p.q, price: null }));
-    renderCalc(); show('calc'); window.scrollTo({ top: 0, behavior: 'smooth' });
+    const b = e.target.closest('[data-open]'); if (!b) return; const r = genResults[+b.dataset.open];
+    S.rar = G.rar; S.st = G.st; S.fee = +$('#gFee').value || 0; S.slots = [];
+    r.parts.forEach(p => { for (let k = 0; k < p.q; k++) S.slots.push({ s: p.k.s, f: +p.k.f.toFixed(4), price: null }); });
+    renderCalc(); show('calc');
   });
 
+  // skins
+  $('#skinsBody').addEventListener('click', e => {
+    const t = e.target.closest('[data-skin],[data-back],[data-more],[data-usecalc],[data-cat],[data-rar],[data-wsel],[data-st2],[data-col]'); if (!t) return;
+    if (t.dataset.col != null) { CK.sel = +t.dataset.col; show('collections'); return; }
+    if (t.dataset.usecalc != null) { const si = +t.dataset.usecalc, s = D.skins[si]; if (S.rar !== s.r) { S.rar = s.r; S.slots = []; } pick = si; renderCalc(); setPick(si); show('calc'); return; }
+    if (t.dataset.skin != null) { openSkin(+t.dataset.skin); return; }
+    if (t.dataset.back != null) WK.sel = null;
+    else if (t.dataset.more != null) WK.limit += 60;
+    else if (t.dataset.cat != null) { WK.cat = t.dataset.cat; WK.weapon = ''; WK.limit = 60; }
+    else if (t.dataset.rar != null) { WK.rar = t.dataset.rar; WK.limit = 60; }
+    else if (t.dataset.wsel != null) WK.wear = +t.dataset.wsel;
+    else if (t.dataset.st2 != null) WK.st = t.dataset.st2 === '1';
+    renderSkins();
+  });
+  $('#skinsBody').addEventListener('input', e => { if (e.target.id === 'wq') { WK.q = e.target.value; WK.limit = 60; const pos = e.target.selectionStart; renderSkins(); const q = $('#wq'); q.focus(); q.setSelectionRange(pos, pos); } });
+  $('#skinsBody').addEventListener('change', e => { if (e.target.id === 'wsort') { WK.sort = e.target.value; renderSkins(); } });
+  $('#colsBody').addEventListener('click', e => {
+    const s = e.target.closest('[data-skin]'); if (s) { openSkin(+s.dataset.skin); return; }
+    const c = e.target.closest('[data-col]'); if (c) { CK.sel = +c.dataset.col; renderCols(); window.scrollTo({ top: 0 }); return; }
+    if (e.target.closest('[data-cback]')) { CK.sel = null; renderCols(); }
+  });
+  $('#colsBody').addEventListener('input', e => { if (e.target.id === 'cq') { CK.q = e.target.value; const pos = e.target.selectionStart; renderCols(); const q = $('#cq'); q.focus(); q.setSelectionRange(pos, pos); } });
+
+  // prix
+  $('#pAutoField').addEventListener('change', e => { autoField = +e.target.value; store.set('autoField2', autoField); priceRefresh(); });
+  $('#pCur').addEventListener('change', e => { cur = e.target.value; store.set('cur', cur); priceRefresh(); });
   $('#pImport').addEventListener('click', async () => {
-    let text = $('#pPaste').value;
-    const file = $('#pFile').files[0];
-    if (file) text = await file.text();
+    let text = $('#pPaste').value; const file = $('#pFile').files[0]; if (file) text = await file.text();
     if (!text.trim()) { $('#pMsg').textContent = 'Choisissez un fichier ou collez une liste de prix.'; return; }
-    try {
-      const map = parsePrices(text, $('#pField').value);
-      const n = Object.keys(map).length;
-      if (!n) { $('#pMsg').textContent = "Aucun prix reconnu. Formats acceptés : tableau Skinport, objet {nom: prix} ou CSV nom;prix."; return; }
-      prices = { map, source: file ? file.name : 'collage', date: Date.now() };
-      cur = $('#pCur').value; store.set('cur', cur);
-      store.set('prices', prices);
-      $('#pMsg').textContent = n.toLocaleString('fr-FR') + ' prix importés.';
-      updatePriceBadge(); renderCalc();
-    } catch (e) { $('#pMsg').textContent = 'Lecture impossible : ' + e.message; }
+    try { const map = parsePrices(text, $('#pField').value), n = Object.keys(map).length; if (!n) { $('#pMsg').textContent = 'Aucun prix reconnu.'; return; } prices = { map, source: file ? file.name : 'collage', date: Date.now() }; store.set('prices', prices); $('#pMsg').textContent = n.toLocaleString('fr-FR') + ' prix importés.'; priceRefresh(); }
+    catch (err) { $('#pMsg').textContent = 'Lecture impossible : ' + err.message; }
   });
-  $('#pCur').addEventListener('change', e => { cur = e.target.value; store.set('cur', cur); renderCalc(); });
-  $('#pDemo').addEventListener('click', () => { prices = null; store.set('prices', null); updatePriceBadge(); renderCalc(); $('#pMsg').textContent = auto ? 'Retour aux prix automatiques.' : "Pas de prix automatiques disponibles ici : retour aux prix de démonstration."; });
-  $('#pAutoField').value = autoField;
-  $('#pAutoField').addEventListener('change', e => { autoField = +e.target.value; store.set('autoField', autoField); updatePriceBadge(); renderCalc(); });
-  $('#pCopy').addEventListener('click', () => {
-    const txt = JSON.stringify(Object.assign({}, prices ? prices.map : {}, manual));
-    navigator.clipboard.writeText(txt).then(() => $('#pMsg').textContent = 'Prix copiés dans le presse-papiers.', () => { $('#pPaste').value = txt; $('#pPaste').select(); $('#pMsg').textContent = 'Copie refusée par le navigateur : le texte est sélectionné dans la zone ci-dessus.'; });
-  });
-  $('#pmEditor').addEventListener('change', e => {
-    const el = e.target; if (!el.dataset.mname) return;
-    if (el.value === '') delete manual[el.dataset.mname]; else manual[el.dataset.mname] = +el.value;
-    store.set('manual', manual); updatePriceBadge(); renderCalc();
-  });
+  $('#pDemo').addEventListener('click', () => { prices = null; store.set('prices', null); $('#pMsg').textContent = auto ? 'Retour aux prix automatiques.' : 'Pas de prix automatiques ici : prix de démonstration.'; priceRefresh(); });
+  $('#pmQ').addEventListener('input', renderManualSearch);
+  $('#pmRes').addEventListener('click', e => { const b = e.target.closest('[data-pm]'); if (b) renderManual(+b.dataset.pm); });
+  $('#pmEditor').addEventListener('change', e => { const el = e.target; if (!el.dataset.mname) return; if (el.value === '') delete manual[el.dataset.mname]; else manual[el.dataset.mname] = +el.value; store.set('manual', manual); priceRefresh(); });
 
-  $$('nav.tabs button').forEach(b => b.addEventListener('click', () => show(b.dataset.view)));
-  $$('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
-  $('#priceBadge').addEventListener('click', () => show('prices'));
-  const h = location.hash.slice(1);
-  show(['calc', 'gen', 'wiki', 'prices', 'method'].includes(h) ? h : 'calc');
-  initWiki();
-  updatePriceBadge(); renderTags();
-  if (!S.lines.length) loadSample(); else renderCalc();
+  updatePriceUI(); renderGenControls();
+  if (!S.slots.length) loadSample(); else renderCalc();
+  show(location.hash.slice(1) || 'calc');
 }
 boot();
 })();

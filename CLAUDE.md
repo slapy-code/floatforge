@@ -24,7 +24,8 @@ Alex veut un site qui fait ce que font TradeUpSpy et CSFloat (calculateur de tra
 ## Données
 - Icônes : URLs Steam CDN de ByMykel. Bloquées dans l'aperçu artifact (CSP) et depuis le conteneur, visibles sur le site hébergé ; repli sur une vignette texte.
 - Skins, plages de float, collections, caisses : ByMykel/CSGO-API (GitHub, licence MIT), converties par `tools/build_data.py`.
-- Prix (décision 2026-11-25, option A d'Alex) : **API publique Skinport, EUR**, récupérée toutes les heures par GitHub Actions (`tools/update_prices.py`) dans `site/data/prices.json` : prix mini, suggéré, quantité, moyenne 24 h, médianes 7/30/90 j, volume 7 j. Le site choisit le champ (mini par défaut).
+- Prix (format v2, décision 2026-11-25 suite à la demande d'Alex « pas que Steam, comme csgoskins.gg ») : GitHub Action horaire (`tools/update_prices.py`) qui agrège **Skinport (API officielle), Market.CSGO (API officielle) et l'agrégateur gratuit prices.csgotrader.app** (Buff163, YouPin, CSFloat, CS.MONEY, BitSkins, Loot.Farm, CSGOEmpire, Swap.gg, Steam ; USD converti). Prix de référence = médiane des marchés « cash » (hors Steam et sites d'échange) sans valeurs aberrantes (÷3 / ×3). Champs : ref, low, med7, med30, vol7, qty, prix par marché. Le site utilise la référence par défaut.
+- Les sites qui exigent une clé (CSFloat API, Pricempire, csgoskins.gg API) ne sont pas utilisés ; une sonde de nombreux sites via GitHub Actions a été refusée par le contrôle de sécurité de Claude : s'en tenir aux API documentées.
 - Priorité des prix : correction manuelle > import manuel > prix auto > prix de démo (uniquement si aucun prix auto, ex. aperçu artifact).
 
 ## Décisions techniques
@@ -34,7 +35,8 @@ Alex veut un site qui fait ce que font TradeUpSpy et CSFloat (calculateur de tra
 - Stockage local (localStorage) : contrat en cours, prix importés, corrections, réglages du générateur.
 - Aperçu privé : https://claude.ai/artifact/7qrHQMs6dfzACDcwtWG13e.
 - Hébergement public choisi : **GitHub Pages** (dépôt public `floatforge` à créer par Alex), déploiement par la même Action que les prix.
-- Wiki : onglet dédié (skins / collections), fiche skin avec plage de float, prix par usure et variations 7/30 j, liens trade up (peut donner / obtenu depuis), pools couteaux.
+- Design v2 (2026-11-25, demande d'Alex « 100× plus pro, comme CSFloat / CS.MONEY / csgoskins.gg ») : navigation avec méga-menu des armes (icônes), recherche globale, calculateur en cases d'objets, synthèse collante, issues en cartes, fiche skin façon csgoskins.gg (usures à gauche, offres par marché à droite avec boutons « Voir l'offre »). Police Inter, bleu #3b82f6 sur bleu nuit.
+- Wiki : vues Skins (filtres catégorie/rareté, tri) et Collections, fiches détaillées, liens trade up.
 
 ## Hypothèses à confirmer
 - Définition des tags « 100 % gagnant » (pire issue > coût) et « remboursé » (pire issue ≥ seuil % du coût, 90 % par défaut).

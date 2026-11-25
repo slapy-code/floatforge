@@ -30,7 +30,11 @@ _Révision : 2026-11-25_
 - GitHub Pages gratuit exige un dépôt **public** : en privé, la rubrique « Source » n'apparaît pas. L'API Pages est bloquée par le proxy de Claude : c'est Alex qui active Pages dans les réglages.
 - L'API Skinport `sales/history` refuse le paramètre `tradable` (HTTP 400).
 
+- Lancer une sonde de nombreux sites tiers via GitHub Actions a été bloqué (contournement du réseau) : n'utiliser que des API publiques documentées.
+
 ## Interface
+- Un élément `hidden` avec une règle `display: grid` reste visible hors artifact : ajouter `[hidden] { display: none !important; }`.
+- `input[type="search"]` générique écrase `.gsearch input` (même spécificité, déclaré après) : cibler `.gsearch input[type="search"]`.
 - `updatePriceBadge` plantait quand seuls les prix auto existaient (`prices.source` sur null) : toujours tester les 3 états (démo, auto, import).
 - L'API Skinport répond en Brotli (`Accept-Encoding: br` obligatoire) : `pip install brotli` dans l'Action.
 - Sans `<meta charset="utf-8">`, le site servi en local affiche les accents en mojibake (l'artifact l'ajoute tout seul).
