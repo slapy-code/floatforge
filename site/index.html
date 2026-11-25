@@ -412,7 +412,7 @@ footer { border-top: 1px solid var(--line); padding-block: 22px; color: var(--mu
         <h2>Source automatique</h2>
         <div id="priceStatus" class="note"></div>
         <label class="field"><span>Prix utilisé dans les calculs</span><select id="pAutoField"><option value="0">Prix de référence (médiane des marchés)</option><option value="1">Le moins cher parmi les marchés</option><option value="2">Médiane des ventes 7 j (Skinport)</option><option value="3">Médiane des ventes 30 j (Skinport)</option></select></label>
-        <div class="note">Le prix de référence est la médiane des prix les plus bas sur Buff163, YouPin, CSFloat, Skinport, Market.CSGO, CS.MONEY et BitSkins, après retrait des valeurs aberrantes. Steam et les sites d'échange sont affichés mais exclus. Mise à jour toutes les heures.</div>
+        <div class="note">Le prix de référence est la médiane des prix les plus bas sur Buff163, YouPin, CSFloat, Skinport, Market.CSGO, CS.MONEY, Lis-Skins et C5Game, après retrait des valeurs aberrantes. Steam et les sites d'échange sont affichés mais exclus. Mise à jour toutes les heures.</div>
         <div id="marketList" class="chips"></div>
       </div>
       <div class="card pad stack">
@@ -450,7 +450,7 @@ footer { border-top: 1px solid var(--line); padding-block: 22px; color: var(--mu
 float sortie = min_sortie + moyenne(normalisés) × (max_sortie − min_sortie)</pre>
       <p>L'ancienne formule (moyenne brute) reste disponible pour comparer. Tranches : FN &lt; 0,07 ≤ MW &lt; 0,15 ≤ FT &lt; 0,38 ≤ WW &lt; 0,45 ≤ BS.</p>
       <h3>Prix</h3>
-      <p>Toutes les heures, un robot récupère le prix le plus bas de chaque objet sur plusieurs marchés (Buff163, YouPin, CSFloat, Skinport, Market.CSGO, CS.MONEY, BitSkins, plus Steam et des sites d'échange pour comparaison) via les API publiques de Skinport et Market.CSGO et l'agrégateur gratuit de l'extension CSGO Trader. Le prix de référence est la médiane des marchés où l'on paie en argent réel, sans les valeurs aberrantes.</p>
+      <p>Toutes les heures, un robot récupère le prix le plus bas de chaque objet sur plusieurs marchés (Buff163, YouPin, CSFloat, Skinport, Market.CSGO, CS.MONEY, Lis-Skins, C5Game, plus Steam et des sites d'échange pour comparaison) via les API publiques de Skinport et Market.CSGO et l'agrégateur gratuit de l'extension CSGO Trader. Le prix de référence est la médiane des marchés où l'on paie en argent réel, sans les valeurs aberrantes.</p>
       <h3>Statistiques</h3>
       <ul>
         <li><b>Net</b> : prix de l'issue moins les frais de revente.</li>
@@ -494,7 +494,8 @@ const MARKETS = {
   skinport: { n: 'Skinport', c: '#fa490a', u: n => 'https://skinport.com/market?search=' + encodeURIComponent(n) },
   marketcsgo: { n: 'Market.CSGO', c: '#1f9d55', u: n => 'https://market.csgo.com/en/?search=' + encodeURIComponent(n) },
   csmoney: { n: 'CS.MONEY', c: '#e0277f', u: n => 'https://cs.money/market/buy/?search=' + encodeURIComponent(n) },
-  bitskins: { n: 'BitSkins', c: '#4a5fd6', u: n => 'https://bitskins.com/market/cs2?search=' + encodeURIComponent(n) },
+  lisskins: { n: 'Lis-Skins', c: '#4a5fd6', u: n => 'https://lis-skins.com/market/csgo/?query=' + encodeURIComponent(n) },
+  c5game: { n: 'C5Game', c: '#e5484d', u: () => 'https://www.c5game.com/' },
   lootfarm: { n: 'Loot.Farm', c: '#6c7a89', u: () => 'https://loot.farm/', trade: true },
   csgoempire: { n: 'CSGOEmpire', c: '#b8860b', u: () => 'https://csgoempire.com/', trade: true },
   swapgg: { n: 'Swap.gg', c: '#7c3aed', u: () => 'https://swap.gg/', trade: true },

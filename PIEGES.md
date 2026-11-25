@@ -30,6 +30,7 @@ _Révision : 2026-11-25_
 - GitHub Pages gratuit exige un dépôt **public** : en privé, la rubrique « Source » n'apparaît pas. L'API Pages est bloquée par le proxy de Claude : c'est Alex qui active Pages dans les réglages.
 - L'API Skinport `sales/history` refuse le paramètre `tradable` (HTTP 400).
 
+- prices.csgotrader.app/latest/prices_v6.json renvoie une page HTML : l'agrégateur sert un fichier par marché (`latest/buff163.json`, `youpin898.json`, `csfloat.json`…), voir `utils/static/pricing.js` de l'extension CSGO Trader.
 - Lancer une sonde de nombreux sites tiers via GitHub Actions a été bloqué (contournement du réseau) : n'utiliser que des API publiques documentées.
 
 ## Interface

@@ -7,7 +7,7 @@ Sources (toutes publiques, sans clé) :
   - Skinport (API officielle) : prix le plus bas, quantité, ventes 7/30 jours.
   - Market.CSGO (API officielle) : prix le plus bas.
   - prices.csgotrader.app (agrégateur gratuit de l'extension CSGO Trader) : Buff163, YouPin, CSFloat,
-    CS.MONEY, BitSkins, Loot.Farm, CSGOEmpire, Swap.gg, Steam… en USD, convertis avec ses taux de change.
+    CS.MONEY, Lis-Skins, C5Game, Loot.Farm, CSGOEmpire, Swap.gg, Steam… en USD, convertis avec ses taux de change.
 Chaque source est facultative : si l'une échoue, les autres sont gardées.
 
 Prix de référence = médiane des marchés « cash » (hors Steam et hors sites d'échange), après retrait
@@ -40,15 +40,16 @@ OUT = ROOT / 'site' / 'data' / 'prices.json'
 # id, utilisé dans la référence ?
 MARKETS = [
     ('buff163', True), ('youpin', True), ('csfloat', True), ('skinport', True), ('marketcsgo', True),
-    ('csmoney', True), ('bitskins', True), ('lootfarm', False), ('csgoempire', False), ('swapgg', False),
-    ('steam', False),
+    ('csmoney', True), ('lisskins', True), ('c5game', True), ('lootfarm', False), ('csgoempire', False),
+    ('swapgg', False), ('steam', False),
 ]
 MID = [m for m, _ in MARKETS]
 REF = {m for m, r in MARKETS if r}
-# clés de l'agrégateur csgotrader → nos identifiants
-CSGOTRADER_KEYS = {'buff163': 'buff163', 'youpin': 'youpin', 'csfloat': 'csfloat', 'csmoney': 'csmoney',
-                   'bitskins': 'bitskins', 'lootfarm': 'lootfarm', 'csgoempire': 'csgoempire', 'swapgg': 'swapgg',
-                   'steam': 'steam', 'skinport': 'skinport', 'csgotm': 'marketcsgo'}
+# Fichiers par marché de l'agrégateur csgotrader (https://prices.csgotrader.app/latest/<fichier>.json, en USD)
+# → nos identifiants. Source : extension CSGO Trader, utils/static/pricing.js.
+CSGOTRADER_FILES = {'buff163': 'buff163', 'youpin898': 'youpin', 'csfloat': 'csfloat', 'csmoney': 'csmoney',
+                    'lisskins': 'lisskins', 'c5game': 'c5game', 'lootfarm': 'lootfarm', 'csgoempire': 'csgoempire',
+                    'swapgg': 'swapgg', 'steam': 'steam'}
 
 
 def fetch(url):
@@ -106,23 +107,27 @@ def main():
         if p and p > 0 and keep(name):
             prices.setdefault(name, {})[market] = round(p, 2)
 
-    # 1. Agrégateur csgotrader (USD → devise)
+    # 1. Agrégateur csgotrader (USD → devise), un fichier par marché
     try:
         fx = fetch('https://prices.csgotrader.app/latest/exchange_rates.json')
         rate = float(fx.get(cur, 1.0)) / float(fx.get('USD', 1.0))
-        agg = fetch('https://prices.csgotrader.app/latest/prices_v6.json')
-        counts = {}
-        for name, entry in agg.items():
-            if not isinstance(entry, dict) or not keep(name):
-                continue
-            for k, mid in CSGOTRADER_KEYS.items():
-                p = num(entry.get(k))
-                if p:
-                    put(name, mid, p * rate)
-                    counts[mid] = counts.get(mid, 0) + 1
-        report['csgotrader'] = counts
     except Exception as e:  # noqa: BLE001
-        report['csgotrader'] = f'échec : {e}'
+        rate = None
+        report['csgotrader_fx'] = f'échec : {e}'
+    if rate:
+        for fname, mid in CSGOTRADER_FILES.items():
+            try:
+                data = fetch(f'https://prices.csgotrader.app/latest/{fname}.json')
+                n = 0
+                for name, entry in data.items():
+                    p = num(entry)
+                    if p and keep(name):
+                        put(name, mid, p * rate)
+                        n += 1
+                report[mid] = n
+            except Exception as e:  # noqa: BLE001
+                report[mid] = f'échec : {e}'
+            time.sleep(1)
 
     # 2. Skinport (officiel, prioritaire sur l'agrégateur pour Skinport)
     try:
