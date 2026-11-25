@@ -1,6 +1,6 @@
 """Construit site/data/cs2.json à partir des JSON de ByMykel/CSGO-API.
 Usage : python3 -I build_data.py <dossier_json_bruts> <sortie.json>
-Fichiers attendus dans le dossier : skins.json, crates.json (API /public/api/en/)."""
+Fichiers attendus dans le dossier : skins.json, crates.json, base_weapons.json (API /public/api/en/)."""
 import json, sys, os
 src, out = sys.argv[1], sys.argv[2]
 skins = json.load(open(os.path.join(src, 'skins2.json' if os.path.exists(os.path.join(src,'skins2.json')) else 'skins.json')))
@@ -62,5 +62,15 @@ for cr in crates:
         c['pool'] = sorted(set((c['pool'] or []) + pool))
 for c in cols:
     if not c['crates']: c.pop('crates')
-json.dump({'v': 1, 'source': 'ByMykel/CSGO-API', 'collections': cols, 'crates': crate_names, 'skins': out_sk}, open(out, 'w'), ensure_ascii=False, separators=(',', ':'))
+# Armes de base (icônes du menu)
+weapons = []
+bw_path = os.path.join(src, 'base_weapons.json')
+if os.path.exists(bw_path):
+    for w in json.load(open(bw_path)):
+        cat = (w.get('category') or {}).get('name')
+        if cat in ('Rifles', 'Pistols', 'SMGs', 'Heavy', 'Knives', 'Gloves') and w.get('image'):
+            weapons.append({'n': w['name'].replace('★ ', ''), 'k': cat, 'img': w['image']})
+known = {e.get('w') for e in out_sk}
+weapons = [w for w in weapons if w['n'] in known]
+json.dump({'v': 2, 'source': 'ByMykel/CSGO-API', 'collections': cols, 'crates': crate_names, 'weapons': weapons, 'skins': out_sk}, open(out, 'w'), ensure_ascii=False, separators=(',', ':'))
 print(len(cols), 'collections', len(out_sk), 'skins', sum(1 for c in cols if c['pool']), 'avec pool', os.path.getsize(out)//1024, 'KB')

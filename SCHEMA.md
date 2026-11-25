@@ -11,7 +11,9 @@ _Révision : 2026-11-25_
 ```mermaid
 flowchart LR
   API[ByMykel/CSGO-API<br/>skins.json, crates.json] -->|tools/build_data.py| DATA[site/data/cs2.json]
-  SKP[API Skinport] -->|GitHub Action horaire<br/>tools/update_prices.py| PJ[site/data/prices.json]
+  SKP[API Skinport] -->|GitHub Action horaire<br/>tools/update_prices.py| PJ[site/data/prices.json<br/>référence = médiane multi-marchés]
+  MCS[API Market.CSGO] --> PJ
+  CT[Agrégateur csgotrader<br/>Buff, YouPin, CSFloat, CS.MONEY…] --> PJ
   PJ --> UI
   PRIX[Fichier de prix importé<br/>Skinport / JSON / CSV] -->|localStorage| UI
   UI -->|GitHub Pages| WEB[Site public]
