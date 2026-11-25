@@ -27,6 +27,7 @@ floatforge/
 ├── CLAUDE.md BACKLOG.md SCHEMA.md PIEGES.md
 ├── site/                ← le site (source)
 │   ├── index.html       ← interface v2 (HTML + CSS + JS)
+│   ├── assets/logo.svg  ← logo
 │   ├── engine.js        ← moteur de calcul pur (testable sous Node)
 │   └── data/
 │       ├── cs2.json     ← skins, collections, caisses, pools couteaux (généré)

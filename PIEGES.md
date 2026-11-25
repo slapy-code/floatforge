@@ -33,6 +33,7 @@ _Révision : 2026-11-25_
 - Lancer une sonde de nombreux sites tiers via GitHub Actions a été bloqué (contournement du réseau) : n'utiliser que des API publiques documentées.
 
 ## Interface
+- `+input.value` vaut 0 quand le champ est vide : tester `value === ''` avant (bug du float 0 à l'ajout).
 - Un élément `hidden` avec une règle `display: grid` reste visible hors artifact : ajouter `[hidden] { display: none !important; }`.
 - `input[type="search"]` générique écrase `.gsearch input` (même spécificité, déclaré après) : cibler `.gsearch input[type="search"]`.
 - `updatePriceBadge` plantait quand seuls les prix auto existaient (`prices.source` sur null) : toujours tester les 3 états (démo, auto, import).

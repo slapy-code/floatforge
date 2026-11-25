@@ -36,6 +36,8 @@ Alex veut un site qui fait ce que font TradeUpSpy et CSFloat (calculateur de tra
 - Aperçu privé : https://claude.ai/artifact/7qrHQMs6dfzACDcwtWG13e.
 - Hébergement public choisi : **GitHub Pages** (dépôt public `floatforge` à créer par Alex), déploiement par la même Action que les prix.
 - Design v2 (2026-11-25, demande d'Alex « 100× plus pro, comme CSFloat / CS.MONEY / csgoskins.gg ») : navigation avec méga-menu des armes (icônes), recherche globale, calculateur en cases d'objets, synthèse collante, issues en cartes, fiche skin façon csgoskins.gg (usures à gauche, offres par marché à droite avec boutons « Voir l'offre »). Police Inter, bleu #3b82f6 sur bleu nuit.
+- Logo (2026-11-25) : enclume blanche sur carré bleu dégradé, étincelle dorée, barre des 5 couleurs d'usure (FN→BS) ; `site/assets/logo.svg`, aussi en favicon inline.
+- Cases du simulateur : boutons Dupliquer (une copie) et Remplir (complète les cases vides avec ce skin).
 - Wiki : vues Skins (filtres catégorie/rareté, tri) et Collections, fiches détaillées, liens trade up.
 
 ## Hypothèses à confirmer
